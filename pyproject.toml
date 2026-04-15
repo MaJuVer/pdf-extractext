@@ -79,6 +79,7 @@ strict_equality = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
+pythonpath = ["."]
 addopts = ["--strict-markers", "-v", "--cov=src", "--cov-report=term-missing"]
 
 [tool.coverage.run]

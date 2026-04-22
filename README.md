@@ -272,6 +272,28 @@ uv run bash
 
 # Ver información del entorno
 uv pip list
+
+###Configuración de Entorno con Docker
+
+Para este proyecto utilizamos **Docker** y **Docker Compose** para gestionar la base de datos MongoDB de forma aislada y persistente.
+
+### 1. Instalación de Docker (en Fedora)
+Si aún no tenés Docker, ejecutá estos comandos en tu terminal:
+
+```bash
+# Instalar dependencias y repo oficial
+sudo dnf install dnf-plugins-core
+sudo dnf config-manager --add-repo [https://download.docker.com/linux/fedora/docker-ce.repo](https://download.docker.com/linux/fedora/docker-ce.repo)
+
+# Instalar motor de Docker y Compose
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Iniciar y habilitar el servicio
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Opcional: Agregar tu usuario al grupo docker para no usar sudo (requiere reiniciar sesión)
+# sudo usermod -aG docker $USER
 ```
 
 ## Flujo de Dependencias

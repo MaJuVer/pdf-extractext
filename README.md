@@ -272,8 +272,8 @@ uv run bash
 
 # Ver información del entorno
 uv pip list
-
-###Configuración de Entorno con Docker
+```
+##Configuración de Entorno con Docker
 
 Para este proyecto utilizamos **Docker** y **Docker Compose** para gestionar la base de datos MongoDB de forma aislada y persistente.
 

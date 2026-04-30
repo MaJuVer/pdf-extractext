@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 from src.domain.entities.base_entity import BaseEntity
 
 
-@dataclass
+@dataclass(kw_only=True)
 class RegistroProcesamiento(BaseEntity):
     """
     Representa un registro histórico de procesamiento de PDF.

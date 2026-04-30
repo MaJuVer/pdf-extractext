@@ -11,7 +11,7 @@ from pathlib import Path
 from src.domain.entities.base_entity import BaseEntity
 
 
-@dataclass
+@dataclass(kw_only=True)
 class DocumentoPDF(BaseEntity):
     """
     Representa un documento PDF validado en el sistema.

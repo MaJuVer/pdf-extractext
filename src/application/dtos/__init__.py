@@ -1,14 +1,15 @@
-"""
-Data Transfer Objects (DTOs).
+"""Data Transfer Objects para la capa de aplicación."""
 
-Los DTOs transportan datos entre capas sin exponer entidades
-del dominio. Son objetos simples sin comportamiento.
+from src.application.dtos.pdf_dtos import (
+    ArchivoEntradaDTO,
+    ArchivoSalidaDTO,
+    RegistroProcesamientoOutputDTO,
+    TextoExtraidoDTO,
+)
 
-Separación:
-    - Input DTOs: Datos de entrada (API -> Aplicación)
-    - Output DTOs: Datos de salida (Aplicación -> API)
-
-Ejemplo:
-    - CreateUserInputDTO
-    - UserOutputDTO
-"""
+__all__ = [
+    "ArchivoEntradaDTO",
+    "ArchivoSalidaDTO",
+    "TextoExtraidoDTO",
+    "RegistroProcesamientoOutputDTO",
+]

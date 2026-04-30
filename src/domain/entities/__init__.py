@@ -1,11 +1,6 @@
-"""
-Entidades del dominio.
+"""Entidades del dominio."""
 
-Las entidades representan objetos de negocio con identidad única
-que persiste a través de cambios de estado.
+from src.domain.entities.documento_pdf import DocumentoPDF
+from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 
-Ejemplo:
-    - User
-    - Order
-    - Product
-"""
+__all__ = ["DocumentoPDF", "RegistroProcesamiento"]

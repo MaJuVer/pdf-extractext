@@ -41,7 +41,7 @@ class ArchivoEntradaDTO(BaseInputDTO):
 
 
 @dataclass(frozen=True)
-class TextoExtraidoDTO(BaseOutputDTO):
+class TextoExtraidoDTO():
     """
     DTO para transportar el texto extraído de un PDF.
 
@@ -65,7 +65,7 @@ class TextoExtraidoDTO(BaseOutputDTO):
 
 
 @dataclass(frozen=True)
-class ArchivoSalidaDTO(BaseOutputDTO):
+class ArchivoSalidaDTO():
     """
     DTO para entregar un archivo generado a la capa de interface.
 

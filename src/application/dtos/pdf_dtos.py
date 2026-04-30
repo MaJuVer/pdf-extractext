@@ -32,43 +32,12 @@ class ArchivoEntradaDTO(BaseInputDTO):
         ...     contenido=b"%PDF-1.4...",
         ...     extension="pdf"
         ... )
-        >>> dto.es_pdf()
-        True
     """
 
     nombre: str
     contenido: bytes
     extension: str
 
-    def __post_init__(self) -> None:
-        """Validaciones de integridad post-inicialización."""
-        object.__setattr__(self, "nombre", self.nombre.strip())
-        object.__setattr__(self, "extension", self.extension.lower().strip())
-
-        if not self.nombre:
-            raise ValueError("El nombre del archivo no puede estar vacío")
-        if not self.extension:
-            raise ValueError("La extensión del archivo no puede estar vacía")
-        if not self.contenido:
-            raise ValueError("El contenido del archivo no puede estar vacío")
-
-    def es_pdf(self) -> bool:
-        """
-        Verifica si el archivo tiene extensión PDF.
-
-        Returns:
-            True si la extensión es 'pdf', False en caso contrario.
-        """
-        return self.extension == "pdf"
-
-    def peso_en_bytes(self) -> int:
-        """
-        Retorna el tamaño del archivo en bytes.
-
-        Returns:
-            Número entero representando el tamaño.
-        """
-        return len(self.contenido)
 
 
 @dataclass(frozen=True)
@@ -93,35 +62,6 @@ class TextoExtraidoDTO(BaseOutputDTO):
     cantidad_caracteres: int
     cantidad_palabras: int
 
-    def __post_init__(self) -> None:
-        """Validaciones de integridad post-inicialización."""
-        if self.cantidad_caracteres < 0:
-            raise ValueError("La cantidad de caracteres no puede ser negativa")
-        if self.cantidad_palabras < 0:
-            raise ValueError("La cantidad de palabras no puede ser negativa")
-
-    def esta_vacio(self) -> bool:
-        """
-        Verifica si el texto extraído está vacío.
-
-        Returns:
-            True si no hay contenido, False en caso contrario.
-        """
-        return self.cantidad_caracteres == 0
-
-    def preview(self, longitud: int = 100) -> str:
-        """
-        Genera una vista previa del texto truncado.
-
-        Args:
-            longitud: Cantidad máxima de caracteres a mostrar.
-
-        Returns:
-            String con el inicio del texto, truncado si es necesario.
-        """
-        if len(self.contenido) <= longitud:
-            return self.contenido
-        return self.contenido[:longitud] + "..."
 
 
 @dataclass(frozen=True)
@@ -151,32 +91,6 @@ class ArchivoSalidaDTO(BaseOutputDTO):
     buffer: BytesIO
     content_type: str = "text/plain; charset=utf-8"
 
-    def __post_init__(self) -> None:
-        """Validaciones de integridad post-inicialización."""
-        if not self.nombre:
-            raise ValueError("El nombre del archivo no puede estar vacío")
-
-    def peso_en_bytes(self) -> int:
-        """
-        Retorna el tamaño del buffer en bytes.
-
-        Returns:
-            Número entero representando el tamaño del archivo.
-        """
-        return self.buffer.getbuffer().nbytes
-
-    def obtener_bytes(self) -> bytes:
-        """
-        Obtiene el contenido del buffer como bytes.
-
-        Returns:
-            Contenido del archivo en formato bytes.
-        """
-        posicion_actual = self.buffer.tell()
-        self.buffer.seek(0)
-        contenido = self.buffer.read()
-        self.buffer.seek(posicion_actual)
-        return contenido
 
 
 @dataclass(frozen=True)
@@ -203,12 +117,3 @@ class RegistroProcesamientoOutputDTO(BaseOutputDTO):
     nombre_archivo_original: str
     longitud_texto: int
     mensaje_confirmacion: str = "Archivo procesado exitosamente"
-
-    def __post_init__(self) -> None:
-        """Validaciones de integridad post-inicialización."""
-        if not self.id_registro:
-            raise ValueError("El ID del registro no puede estar vacío")
-        if not self.nombre_archivo_original:
-            raise ValueError("El nombre del archivo original no puede estar vacío")
-        if self.longitud_texto < 0:
-            raise ValueError("La longitud del texto no puede ser negativa")

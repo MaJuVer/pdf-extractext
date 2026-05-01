@@ -91,4 +91,9 @@ omit = ["*/tests/*", "*/__init__.py", "*/main.py"]
 
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "pass", "raise NotImplementedError", "if TYPE_CHECKING:"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]
 # fail_under = 80

@@ -5,9 +5,7 @@ Representa el registro histórico de un archivo PDF que fue procesado exitosamen
 Esta entidad justifica el uso de una base de datos documental (MongoDB).
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from dataclasses import dataclass
 
 from src.domain.entities.base_entity import BaseEntity
 
@@ -39,10 +37,6 @@ class RegistroProcesamiento(BaseEntity):
 
     nombre_archivo_original: str
     contenido_extraido: str
-    id_registro: UUID = field(default_factory=uuid4)
-    fecha_procesamiento: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
 
     def __post_init__(self) -> None:
         """Validaciones de integridad post-inicialización."""
@@ -58,7 +52,7 @@ class RegistroProcesamiento(BaseEntity):
         """
         longitud_texto = len(self.contenido_extraido)
         return (
-            f"Registro[{self.id_registro}]: "
+            f"Registro[{self.id}]: "
             f"'{self.nombre_archivo_original}' "
             f"({longitud_texto} caracteres extraídos)"
         )

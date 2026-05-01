@@ -20,7 +20,9 @@ class Settings(BaseSettings):
     # Atributos de Base de Datos
     database_url: str = "mongodb://localhost:27017"
     database_name: str = "mi_saas_db"
-
+    MONGO_USER: str ="almabenivleni"
+    MONGO_PASS: str ="pdfextractext26"
+    MONGO_DB: str ="pdf-extractext"
     # Configuración de Pydantic para leer el .env
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

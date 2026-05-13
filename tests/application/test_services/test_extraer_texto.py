@@ -1,5 +1,4 @@
 import pytest
-from src.application.dtos.pdf_dtos import TextoExtraidoDTO
 from src.application.interfaces.pdf_extractor_interface import PDFExtractorInterface
 from src.application.services.extraer_texto import ExtraerTexto
 from src.domain.entities.documento_pdf import DocumentoPDF

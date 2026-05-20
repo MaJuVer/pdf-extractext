@@ -50,3 +50,7 @@ class BaseOutputDTO:
     id: UUID
     created_at: datetime
     updated_at: datetime
+
+class EmptyInputDTO(BaseInputDTO):
+    """DTO utilizado para mappers o casos de uso que no requieren datos de entrada."""
+    pass

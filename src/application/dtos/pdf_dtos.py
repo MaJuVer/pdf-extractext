@@ -5,11 +5,11 @@ Estos DTOs transportan datos entre la capa de interface y los casos de uso,
 garantizando que la capa de aplicación no dependa de frameworks externos.
 """
 
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Optional
 
-from src.application.dtos.base_dto import BaseInputDTO, BaseOutputDTO
+from src.application.dtos.base_dto import BaseInputDTO
 
 
 @dataclass(frozen=True)
@@ -39,9 +39,8 @@ class ArchivoEntradaDTO(BaseInputDTO):
     extension: str
 
 
-
 @dataclass(frozen=True)
-class TextoExtraidoDTO(BaseOutputDTO):
+class TextoExtraidoDTO:
     """
     DTO para transportar el texto extraído de un PDF.
 
@@ -63,9 +62,8 @@ class TextoExtraidoDTO(BaseOutputDTO):
     cantidad_palabras: int
 
 
-
 @dataclass(frozen=True)
-class ArchivoSalidaDTO(BaseOutputDTO):
+class ArchivoSalidaDTO:
     """
     DTO para entregar un archivo generado a la capa de interface.
 
@@ -92,9 +90,8 @@ class ArchivoSalidaDTO(BaseOutputDTO):
     content_type: str = "text/plain; charset=utf-8"
 
 
-
-@dataclass(frozen=True)
-class RegistroProcesamientoOutputDTO(BaseOutputDTO):
+@dataclass(frozen=True, kw_only=True)
+class RegistroProcesamientoOutputDTO:
     """
     DTO para devolver información del registro guardado en base de datos.
 
@@ -113,7 +110,7 @@ class RegistroProcesamientoOutputDTO(BaseOutputDTO):
         ... )
     """
 
-    id_registro: str
+    id_registro: str = field(default_factory=lambda: str(uuid.uuid4()))
     nombre_archivo_original: str
     longitud_texto: int
     mensaje_confirmacion: str = "Archivo procesado exitosamente"

@@ -26,6 +26,7 @@ dependencies = [
     "pymongo>=4.6.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
+    "pypdf>=6.11.0",
 ]
 
 [project.optional-dependencies]
@@ -49,7 +50,7 @@ where = ["src"]
 # Ruff - Linter y Formateador
 # ============================================
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]
@@ -95,5 +96,7 @@ exclude_lines = ["pragma: no cover", "pass", "raise NotImplementedError", "if TY
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "mongomock>=4.3.0",
+    "mypy>=1.20.0",
 ]
 # fail_under = 80

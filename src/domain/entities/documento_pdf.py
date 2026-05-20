@@ -42,7 +42,9 @@ class DocumentoPDF(BaseEntity):
         if self.peso_bytes < 0:
             raise ValueError("El peso en bytes no puede ser negativo")
         if self.peso_bytes != len(self.contenido_binario):
-            raise ValueError("El peso_bytes no coincide con el tamaño real del contenido")
+            raise ValueError(
+                "El peso_bytes no coincide con el tamaño real del contenido"
+            )
 
     def es_extension_valida(self) -> bool:
         """

@@ -16,10 +16,9 @@ class RegistroProcesamiento(BaseEntity):
     Representa un registro histórico de procesamiento de PDF.
 
     Attributes:
-        id_registro: Identificador único del registro (UUID).
         nombre_archivo_original: Nombre original del archivo procesado.
         contenido_extraido: Texto extraído del PDF en formato string.
-        fecha_procesamiento: Timestamp exacto del procesamiento.
+        hash_contenido: Hash SHA256 del contenido del PDF procesado.
 
     Example:
         >>> from src.domain.entities.documento_pdf import DocumentoPDF
@@ -31,12 +30,14 @@ class RegistroProcesamiento(BaseEntity):
         >>> registro = RegistroProcesamiento(
         ...     nombre_archivo_original=pdf.nombre_archivo,
         ...     contenido_extraido="Texto extraído del PDF...",
+        ...     hash_contenido="abc123...",
         ... )
         >>> registro.id_registro  # UUID generado automáticamente
     """
 
     nombre_archivo_original: str
     contenido_extraido: str
+    hash_contenido: str
 
     def __post_init__(self) -> None:
         """Validaciones de integridad post-inicialización."""

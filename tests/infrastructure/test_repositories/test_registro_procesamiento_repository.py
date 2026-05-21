@@ -15,7 +15,9 @@ def test_mongo_repository_guarda_y_recupera_registro():
     )
 
     entidad = RegistroProcesamiento(
-        nombre_archivo_original="test.pdf", contenido_extraido="Texto extraido del PDF"
+        nombre_archivo_original="test.pdf",
+        contenido_extraido="Texto extraido del PDF",
+        hash_contenido="",
     )
 
     entidad_guardada = repo.add(entidad)

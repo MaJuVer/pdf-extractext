@@ -2,6 +2,7 @@ from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from functools import lru_cache
 
 class Settings(BaseSettings):
     """
@@ -25,8 +26,12 @@ class Settings(BaseSettings):
     MONGO_DB: str ="pdf-extractext"
     # Configuración de Pydantic para leer el .env
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    #Max size del documento 
+    max_size: int = 10*10*1024
+    #Min size del documento
+    min_size: int = 100
 
-
+@lru_cache
 def get_settings() -> Settings:
     """Instancia y devuelve las configuraciones."""
     return Settings()

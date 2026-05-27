@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Cliente" as Cliente
+
+rectangle "Sistema de Extracción de Texto" {
+  
+  usecase "Subir PDF" as UC_Subir
+  usecase "Validar PDF (Formato y Tamaño)" as UC_Validar
+  usecase "Verificar Existencia en DB (Checksum)" as UC_Verificar
+  
+  usecase "Extraer Texto y Persistir en DB" as UC_Nuevo
+  usecase "Recuperar Información Existente" as UC_Existente
+  
+  usecase "Entregar archivo .txt" as UC_Descargar
+
+  ' 1. Inicio del flujo por parte del cliente
+  Cliente --> UC_Subir
+
+  ' 2. Secuencia de validación y verificación
+  UC_Subir ..> UC_Validar : <<include>>
+  UC_Validar ..> UC_Verificar : <<include>>
+
+  ' 3. Bifurcación: Las 2 acciones según si existe o no
+  UC_Verificar <.. UC_Nuevo : <<extend>>\n(Si NO existe en DB)
+  UC_Verificar <.. UC_Existente : <<extend>>\n(Si YA existe en DB)
+
+  ' 4. Convergencia: Ambas acciones obligan a entregar el archivo
+  UC_Nuevo ..> UC_Descargar : <<include>>
+  UC_Existente ..> UC_Descargar : <<include>>
+}
+@enduml

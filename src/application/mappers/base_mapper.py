@@ -13,7 +13,7 @@ from src.domain.entities.base_entity import BaseEntity
 
 E = TypeVar("E", bound=BaseEntity)
 InDTO = TypeVar("InDTO", bound=BaseInputDTO)
-OutDTO = TypeVar("OutDTO", bound=BaseOutputDTO)
+OutDTO = TypeVar("OutDTO")
 
 
 class BaseMapper(ABC, Generic[E, InDTO, OutDTO]):

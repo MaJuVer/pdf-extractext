@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.infrastructure.config.settings import Settings
-from src.interface.api.routes import health
+from src.interface.api.routes import health, pdf
 
 
 def create_application() -> FastAPI:
@@ -68,6 +68,7 @@ def _configure_routers(application: FastAPI) -> None:
         application: Instancia de FastAPI.
     """
     application.include_router(health.router, tags=["Health"])
+    application.include_router(pdf.router, tags=["PDF"])
 
 
 app = create_application()

@@ -84,7 +84,12 @@ class DocumentoDuplicadoException(DomainException):
     ya existe en la base de datos, indicando que es un duplicado.
     """
 
-    def __init__(self, message: str = "El documento ya existe en el sistema", *, hash_contenido: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str = "El documento ya existe en el sistema",
+        *,
+        hash_contenido: str | None = None,
+    ) -> None:
         """
         Inicializa la excepción con un mensaje y un hash opcional.
 

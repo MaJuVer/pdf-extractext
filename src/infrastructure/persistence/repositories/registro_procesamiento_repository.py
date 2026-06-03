@@ -24,9 +24,9 @@ class RegistroProcesamientoMongoRepositoryImpl(
     registros por hash SHA256 de contenido.
     """
 
-    def find_by_hash(self, hash_contenido: str) -> Optional[RegistroProcesamiento]:
+    def get_by_hash(self, hash_contenido: str) -> Optional[RegistroProcesamiento]:
         """
-        Busca un registro por su hash SHA256 de contenido.
+        Obtiene un registro por su hash SHA256 de contenido.
 
         Args:
             hash_contenido: Hash SHA256 del contenido del PDF.
@@ -36,3 +36,15 @@ class RegistroProcesamientoMongoRepositoryImpl(
         """
         doc = self._collection.find_one({"hash_contenido": hash_contenido})
         return self._doc_to_entity(doc)
+
+    def find_by_hash(self, hash_contenido: str) -> Optional[RegistroProcesamiento]:
+        """
+        Alias de get_by_hash para compatibilidad.
+
+        Args:
+            hash_contenido: Hash SHA256 del contenido del PDF.
+
+        Returns:
+            RegistroProcesamiento si existe, None en caso contrario.
+        """
+        return self.get_by_hash(hash_contenido)

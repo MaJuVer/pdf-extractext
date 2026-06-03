@@ -22,6 +22,23 @@ class RegistroProcesamientoRepository(BaseRepository[RegistroProcesamiento]):
     """
 
     @abstractmethod
+    def get_by_hash(self, hash_contenido: str) -> Optional[RegistroProcesamiento]:
+        """
+        Obtiene un registro completo por su hash SHA256 de contenido.
+
+        A diferencia de find_by_hash, este metodo esta disenado para
+        recuperar la entidad completa y usarla en logica de negocio
+        (ej: orquestador que necesita el contenido extraido).
+
+        Args:
+            hash_contenido: Hash SHA256 del contenido del PDF.
+
+        Returns:
+            RegistroProcesamiento completo si existe, None en caso contrario.
+        """
+        raise NotImplementedError("Debe implementarse en la infraestructura")
+
+    @abstractmethod
     def find_by_hash(self, hash_contenido: str) -> Optional[RegistroProcesamiento]:
         """
         Busca un registro por su hash SHA256 de contenido.

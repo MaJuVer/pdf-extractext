@@ -8,7 +8,7 @@ manteniendo separada la lógica de transformación.
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-from src.application.dtos.base_dto import BaseInputDTO, BaseOutputDTO
+from src.application.dtos.base_dto import BaseInputDTO
 from src.domain.entities.base_entity import BaseEntity
 
 E = TypeVar("E", bound=BaseEntity)

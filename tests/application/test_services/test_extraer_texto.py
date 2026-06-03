@@ -20,7 +20,7 @@ class FakeExtractorVacio(PDFExtractorInterface):
 
 # TEST 1
 def test_extraer_texto_devuelve_dto_con_texto():
-    extractor = FakeExtractor()
+    extractor = FakeExtractor("Hola mundo PDF")
     caso = ExtraerTexto(extractor=extractor)
     
     contenido = b"%PDF fake"

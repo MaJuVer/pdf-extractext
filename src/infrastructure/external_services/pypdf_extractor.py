@@ -1,7 +1,10 @@
 from io import BytesIO
+
 from pypdf import PdfReader
+
 from src.application.interfaces.pdf_extractor_interface import PDFExtractorInterface
 from src.domain.exceptions.pdf_exceptions import PDFExtractionException
+
 
 class PyPDFExtractor(PDFExtractorInterface):
     def extract_text(self, contenido_binario: bytes) -> str:

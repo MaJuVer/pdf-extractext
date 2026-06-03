@@ -1,5 +1,5 @@
-from src.application.dtos.pdf_dtos import RegistroProcesamientoOutputDTO
 from src.application.dtos.base_dto import EmptyInputDTO
+from src.application.dtos.pdf_dtos import RegistroProcesamientoOutputDTO
 from src.application.mappers.base_mapper import BaseMapper
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 

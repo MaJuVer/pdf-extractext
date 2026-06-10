@@ -1,8 +1,9 @@
+from functools import lru_cache
+from multiprocessing import process
 from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from functools import lru_cache
 
 class Settings(BaseSettings):
     """
@@ -21,8 +22,8 @@ class Settings(BaseSettings):
     # Atributos de Base de Datos
     database_url: str = "mongodb://localhost:27017"
     database_name: str = "mi_saas_db"
-    MONGO_USER: str ="almabenivleni"
-    MONGO_PASS: str ="pdfextractext26"
+    MONGO_USER: str = process.env.get("MONGO_USER", "pdfextractext26")
+    MONGO_PASS: str = process.env.get("MONGO_PASSWORD", "pdfextractext26")
     MONGO_DB: str ="pdf-extractext"
     # Configuración de Pydantic para leer el .env
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")

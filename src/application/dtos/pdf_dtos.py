@@ -8,6 +8,7 @@ garantizando que la capa de aplicación no dependa de frameworks externos.
 import uuid
 from dataclasses import dataclass, field
 from io import BytesIO
+from typing import Optional
 
 from src.application.dtos.base_dto import BaseInputDTO
 
@@ -114,3 +115,26 @@ class RegistroProcesamientoOutputDTO:
     nombre_archivo_original: str
     longitud_texto: int
     mensaje_confirmacion: str = "Archivo procesado exitosamente"
+
+
+@dataclass(frozen=True, kw_only=True)
+class ProcesarPdfOutputDTO:
+    """
+    DTO de salida del orquestador de procesamiento de PDF.
+
+    Attributes:
+        archivo_salida: Archivo .txt generado.
+        registro: Registro de procesamiento (None si fue cacheado).
+        fue_cacheado: True si el documento era duplicado y se recupero de cache.
+
+    Example:
+        >>> dto = ProcesarPdfOutputDTO(
+        ...     archivo_salida=archivo_dto,
+        ...     registro=None,
+        ...     fue_cacheado=True
+        ... )
+    """
+
+    archivo_salida: ArchivoSalidaDTO
+    registro: Optional[RegistroProcesamientoOutputDTO]
+    fue_cacheado: bool

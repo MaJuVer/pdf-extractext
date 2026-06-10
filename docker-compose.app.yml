@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: api_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mongodb://mongodb:27017
+      - DEBUG=true
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+    name: shared-app-network

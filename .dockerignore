@@ -18,3 +18,4 @@ docs/
 htmlcov/
 *.md
 docker-compose.yml
+data/

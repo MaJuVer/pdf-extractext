@@ -1,0 +1,17 @@
+services:
+  mongodb:
+    build: 
+      context: .
+      dockerfile: Dockerfile.db 
+    container_name: mongodb_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: shared-app-network 
+    driver: bridge

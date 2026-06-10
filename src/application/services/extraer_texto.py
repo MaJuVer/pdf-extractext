@@ -3,6 +3,7 @@ from src.application.interfaces.pdf_extractor_interface import PDFExtractorInter
 from src.domain.entities.documento_pdf import DocumentoPDF
 from src.domain.exceptions.pdf_exceptions import DocumentoSinTextoException
 
+
 class ExtraerTexto:
     def __init__(self, extractor: PDFExtractorInterface) -> None:
         self._extractor = extractor

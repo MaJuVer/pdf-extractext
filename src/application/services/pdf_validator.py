@@ -2,8 +2,7 @@ from src.application.dtos.pdf_dtos import ArchivoEntradaDTO
 from src.domain.exceptions.domain_exception import ValidationException
 from src.infrastructure.config.settings import get_settings
 
-
-def RestrictionVerifier(archivo_dto : ArchivoEntradaDTO) -> None:
+def restriction_verifier(archivo_dto : ArchivoEntradaDTO):
     #instanciamos configuracion
     settings=get_settings()
 

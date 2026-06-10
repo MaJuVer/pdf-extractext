@@ -11,14 +11,14 @@ from src.infrastructure.config.settings import get_settings
 
 settings = get_settings()
 
-client: MongoClient = MongoClient(settings.database_url)
+client: MongoClient = MongoClient(settings.DATABASE_URL)
 
 
 def get_db() -> Generator[Database, None, None]:
     """
     Genera la conexión a la base de datos MongoDB.
     """
-    db = client.get_database(settings.database_name)
+    db = client.get_database(settings.MONGO_DB)
     try:
         yield db
     finally:

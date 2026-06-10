@@ -212,3 +212,6 @@ skills-lock.json
 
 # Cache de Ruff
 .ruff_cache/
+
+# Datos de Docker
+data/

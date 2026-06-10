@@ -1,7 +1,7 @@
-import os
 from functools import lru_cache
 from typing import List
 
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,25 +12,30 @@ class Settings(BaseSettings):
     priorizará los valores que encuentre en tu archivo .env.
     """
 
-    # Atributos de la aplicación que lee main.py
     app_name: str = "pdf-extractext"
     app_description: str = "API RESTful para extraer texto de archivos PDF"
     app_version: str = "0.1.0"
     debug: bool = True
     cors_origins: List[str] = ["*"]
 
-    # Atributos de Base de Datos
-    database_url: str = "mongodb://localhost:27017"
-    database_name: str = "mi_saas_db"
-    MONGO_USER: str = os.environ.get("MONGO_USER", "pdfextractext26")
-    MONGO_PASS: str = os.environ.get("MONGO_PASSWORD", "pdfextractext26")
-    MONGO_DB: str ="pdf-extractext"
-    # Configuración de Pydantic para leer el .env
+    MONGO_USER: str
+    MONGO_PASSWORD: str
+    MONGO_HOST: str
+    MONGO_PORT: int
+    MONGO_DB: str
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-    #Max size del documento 
-    max_size: int = 10*10*1024
-    #Min size del documento
-    min_size: int = 100
+
+    PDF_MAX_SIZE_BYTES: int
+    PDF_MIN_SIZE_BYTES: int
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @computed_field
+    @property
+    def DATABASE_URL(self) -> str:
+        return f"mongodb://{self.MONGO_USER}:{self.MONGO_PASS}@{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DB}?authSource=admin"
+
 
 @lru_cache
 def get_settings() -> Settings:

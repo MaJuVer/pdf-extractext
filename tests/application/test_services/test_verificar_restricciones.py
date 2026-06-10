@@ -2,7 +2,7 @@ import pytest
 
 from src.application.dtos.pdf_dtos import ArchivoEntradaDTO 
 from src.domain.exceptions.domain_exception import ValidationException
-from src.application.services.pdf_validator import RestrictionVerifier
+from src.application.services.pdf_validator import restriction_verifier
 
 def test_rechaza_archivo_que_no_sea_pdf():
     #1 Arrange
@@ -13,7 +13,7 @@ def test_rechaza_archivo_que_no_sea_pdf():
     )
 
     with pytest.raises(ValidationException):
-        RestrictionVerifier(dto_invalido)
+        restriction_verifier(dto_invalido)
 
 def test_archivo_valido_pdf():
     dto_valido = ArchivoEntradaDTO(
@@ -22,7 +22,7 @@ def test_archivo_valido_pdf():
         extension= "pdf"
     )
 
-    RestrictionVerifier(dto_valido)
+    restriction_verifier(dto_valido)
 
 def test_archivo_grande_rechazado():
     dto_invalido= ArchivoEntradaDTO(
@@ -31,7 +31,7 @@ def test_archivo_grande_rechazado():
         extension = "pdf"
     )
     with pytest.raises(ValidationException):
-        RestrictionVerifier(dto_invalido)
+        restriction_verifier(dto_invalido)
 
 def test_archivo_vacio():
     dto_invalido = ArchivoEntradaDTO(
@@ -40,4 +40,4 @@ def test_archivo_vacio():
         extension= "pdf" 
     )
     with pytest.raises(ValidationException):
-        RestrictionVerifier(dto_invalido)
+        restriction_verifier(dto_invalido)

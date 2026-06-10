@@ -20,7 +20,7 @@ from src.application.interfaces.pdf_extractor_interface import PDFExtractorInter
 from src.application.services.extraer_texto import ExtraerTexto
 from src.application.services.generar_archivo_txt import GenerarArchivoTxtUseCase
 from src.application.services.guardar_registro_service import GuardarRegistroService
-from src.application.services.pdf_validator import RestrictionVerifier
+from src.application.services.pdf_validator import restriction_verifier
 from src.domain.entities.documento_pdf import DocumentoPDF
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 from src.domain.exceptions.pdf_exceptions import PDFInvalidException
@@ -83,7 +83,7 @@ class ProcesarPdfOrchestrator:
             DocumentoSinTextoException: Si el PDF no contiene texto.
             DocumentoDuplicadoException: Si el hash ya existe (edge case).
         """
-        RestrictionVerifier(archivo_dto)
+        restriction_verifier(archivo_dto)
 
         self._validar_magic_bytes(archivo_dto.contenido, archivo_dto.nombre)
 

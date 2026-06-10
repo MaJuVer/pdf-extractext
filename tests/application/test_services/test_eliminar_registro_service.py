@@ -11,7 +11,7 @@ def test_eliminar_registro_existente():
     mock_repository = Mock()
     
     # Le decimos al mock que cuando le pidan eliminar, devuelva True (simulando éxito)
-    mock_repository.eliminar_por_id.return_value = True
+    mock_repository.delete.return_value = True
     
     # Instanciamos el servicio (que todavía no existe) inyectándole el mock
     service = EliminarRegistroService(mock_repository)

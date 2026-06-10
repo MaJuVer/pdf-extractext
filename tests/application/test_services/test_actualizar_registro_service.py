@@ -17,8 +17,9 @@ def test_actualizar_registro_existente():
     
     mock_repository = Mock()
     # Programamos al mock: cuando busquen por ID, devolvé el registro viejo
-    mock_repository.obtener_por_id.return_value = registro_existente
-    
+    mock_repository.get_by_id.return_value = registro_existente
+    mock_repository.update.return_value = registro_existente
+
     # Instanciamos nuestro futuro servicio
     service = ActualizarRegistroService(mock_repository)
 
@@ -36,4 +37,4 @@ def test_actualizar_registro_existente():
     assert resultado.hash_contenido == "hash_nuevo_123"
     
     # Verificamos que el servicio haya llamado al repositorio para guardar la actualización
-    mock_repository.actualizar.assert_called_once_with(resultado)
+    mock_repository.update.assert_called_once_with(resultado)

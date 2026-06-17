@@ -16,10 +16,10 @@ class Settings(BaseSettings):
     debug: bool = True
     cors_origins: List[str] = ["*"]
 
-    # Componentes de la base de datos (Sin hardcodear en la URL)
+    # Componentes de la base de datos
     MONGO_USER: str
     MONGO_PASS: str
-    MONGO_HOST: str = "mongodb" 
+    MONGO_HOST: str 
     MONGO_PORT: int = 27017
     MONGO_DB: str = "pdf-extractext"
 

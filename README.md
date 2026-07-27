@@ -130,9 +130,9 @@ pdf-extractext/
 - Docker y Docker Compose — necesarios para correr la API y MongoDB en contenedores.
 - MongoDB 7+ accesible (local o en contenedor).
 
-## Puesta en funcionamiento (Track B — Docker Compose)
+## Puesta en funcionamiento
 
-Este track levanta la **API** y **MongoDB** en contenedores separados pero conectados por una red compartida. Es la vía recomendada porque reproduce el entorno de producción y mantiene la base de datos aislada y persistente.
+Levanta la **API** y **MongoDB** en contenedores separados pero conectados por una red compartida. Es la vía recomendada porque reproduce el entorno de producción y mantiene la base de datos aislada y persistente.
 
 ### 1. Instalar UV (solo la primera vez)
 
@@ -149,7 +149,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ### 2. Clonar el repositorio
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/MaJuVer/pdf-extractext.git
 cd pdf-extractext
 ```
 
@@ -170,7 +170,7 @@ Variables requeridas (alineadas con `Settings` en `src/infrastructure/config/set
 | MONGO_HOST  | Host del servicio MongoDB             | mongodb (red Compose)     |
 | MONGO_PORT  | Puerto de MongoDB                     | 27017                     |
 | MONGO_DB    | Nombre de la base                     | pdf-extractext            |
-| debug       | Modo debug de FastAPI (true/false)    | false en producción       |
+| debug       | Modo debug de FastAPI (true/false)    | true       |
 | MAX_SIZE    | Tamaño máximo del PDF en bytes        | 20971520 (20 MB)          |
 | MIN_SIZE    | Tamaño mínimo del PDF en bytes        | 1                         |
 
@@ -220,20 +220,20 @@ curl -X POST http://localhost:8000/pdf/process \
   -o texto_extraido.txt
 ```
 
+O puedes ir a (si colocaste debug=true):
+```bash
+http://localhost:8000/docs
+```
+
+
 Listar los registros persistidos:
 
 ```bash
 curl http://localhost:8000/registros
 ```
 
-### 9. Documentación interactiva
 
-Solo disponible cuando `debug=true`:
-
-- Swagger UI → `http://localhost:8000/docs`
-- ReDoc → `http://localhost:8000/redoc`
-
-### 10. Apagar los servicios
+### 9. Apagar los servicios
 
 ```bash
 docker compose -f docker-compose.app.yml down

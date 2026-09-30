@@ -1,27 +1,34 @@
 # PDF-ExtractExt
 
-API RESTful construida con **FastAPI** para extraer texto de archivos PDF. Proyecto desarrollado siguiendo los principios de **Clean Architecture** para garantizar código mantenible, testeable y escalable.
+API RESTful construida con **FastAPI** para extraer texto de archivos PDF. Permite subir un PDF, obtener su contenido como `.txt` descargable y mantener un historial de procesados con detección de duplicados por hash SHA256.
+
+El proyecto está diseñado bajo **Clean Architecture** para mantener un código mantenible, testeable y desacoplado de frameworks.
 
 ## Stack Tecnológico
 
-| Tecnología | Propósito |
-|------------|-----------|
-| [FastAPI](https://fastapi.tiangolo.com/) | Framework web de alto rendimiento para APIs |
-| [Uvicorn](https://www.uvicorn.org/) | Servidor ASGI para ejecutar la aplicación |
-| [MongoDB](https://www.mongodb.com/) | Base de datos NoSQL para persistencia |
-| [UV](https://docs.astral.sh/uv/) | Gestor de paquetes y entornos virtuales ultrarrápido |
-| [PyTest](https://docs.pytest.org/) | Framework de testing con cobertura |
-| [MyPy](https://mypy.readthedocs.io/) | Type checker estático para Python |
-| [Ruff](https://docs.astral.sh/ruff/) | Linter y formateador ultrarrápido |
-| [Pydantic](https://docs.pydantic.dev/) | Validación de datos y settings |
+| Tecnología          | Propósito                                                |
+|---------------------|-----------------------------------------------------------|
+| Python 3.11+        | Lenguaje principal                                       |
+| FastAPI             | Framework web ASGI de alto rendimiento                   |
+| Uvicorn             | Servidor ASGI para producción                            |
+| Pydantic v2         | Validación de datos y configuración tipada               |
+| pymongo             | Driver oficial de MongoDB                                |
+| MongoDB 8.2         | Persistencia NoSQL                                        |
+| pypdf               | Extracción de texto desde PDF                             |
+| python-multipart    | Parseo de uploads `multipart/form-data`                   |
+| UV                  | Gestor de dependencias y entornos virtuales               |
+| pytest + coverage   | Tests unitarios y reporte de cobertura                    |
+| mypy (strict)       | Type checking estático                                    |
+| Ruff                | Linter y formateador                                       |
+| Docker Compose      | Orquestación de app + base de datos                       |
 
 ## Arquitectura
 
-Este proyecto implementa **Clean Architecture** (Arquitectura Limpia) propuesta por Robert C. Martin (Uncle Bob), organizando el código en capas concéntricas donde las dependencias apuntan siempre hacia adentro.
+El proyecto implementa **Clean Architecture** (Robert C. Martin). Las dependencias siempre apuntan hacia el dominio; ninguna capa interna conoce frameworks, bases de datos ni el framework web.
 
 ```
 ┌─────────────────────────────────────────────┐
-│   Infrastructure Layer                      │
+│   Infrastructure Layer                       │
 │   ┌───────────────────────────────────────┐ │
 │   │   Interface Layer (FastAPI)           │ │
 │   │   ┌───────────────────────────────┐   │ │
@@ -33,292 +40,246 @@ Este proyecto implementa **Clean Architecture** (Arquitectura Limpia) propuesta 
 │   │   │   │   • Repositories  │       │   │ │
 │   │   │   │   • Exceptions    │       │   │ │
 │   │   │   └───────────────────┘       │   │ │
-│   │   │                               │   │ │
 │   │   └───────────────────────────────┘   │ │
 │   └───────────────────────────────────────┘ │
 └─────────────────────────────────────────────┘
 ```
 
-### Principios Aplicados
+| Capa            | Responsabilidad                                                                |
+|------------------|---------------------------------------------------------------------------------|
+| Domain           | Entidades, value objects, interfaces de repositorio y excepciones de negocio    |
+| Application      | Casos de uso, DTOs, mappers y orquestadores                                     |
+| Infrastructure   | Persistencia (MongoDB), servicios externos (`pypdf`), configuración y logging   |
+| Interface        | Rutas HTTP, schemas Pydantic, dependencias inyectables y `main.py` de FastAPI   |
 
-- **SRP** (Single Responsibility Principle): Cada clase tiene una única razón para cambiar
-- **DIP** (Dependency Inversion Principle): Las capas interiores definen interfaces, las exteriores implementan
-- **OCP** (Open/Closed Principle): Extiende funcionalidad sin modificar código existente
-- **DRY** (Don't Repeat Yourself): Evita la duplicación de lógica de negocio
-- **KISS** (Keep It Simple, Stupid): Soluciones simples sobre complejas
+Flujo de dependencias:
+
+```
+Interface (Controllers) → Application (Services) → Domain (Repository interfaces)
+                                                   ← Infrastructure (Repository implementations)
+```
+
+## Principios Utilizados
+
+- **SRP** — Single Responsibility: cada clase tiene una única razón para cambiar.
+- **DIP** — Dependency Inversion: las capas internas definen interfaces; las externas las implementan.
+- **OCP** — Open/Closed: la funcionalidad se extiende sin modificar código existente.
+- **LSP** — Liskov Substitution: las implementaciones de repositorio son intercambiables.
+- **ISP** — Interface Segregation: interfaces específicas (`PDFExtractorInterface`, `BaseRepository`) en lugar de contratos genéricos.
+- **DRY** — Don't Repeat Yourself: lógica de negocio centralizada en la capa de aplicación.
+- **KISS** — Keep It Simple: soluciones simples antes que complejas y difícilmente mantenibles.
+- **Clean Code (Uncle Bob)** — nombres intención-reveladores, funciones cortas con un solo nivel de abstracción, comentarios solo cuando aportan valor real, manejo de errores por excepciones específicas propias del dominio.
+- **12-Factor App** — configuración externalizada vía variables de entorno, separación clara de stages y construcción reproducible con `uv.lock` + `Dockerfile` multi-stage.
 
 ## Estructura del Proyecto
 
 ```
 pdf-extractext/
 ├── src/
-│   ├── domain/                    # Capa de Dominio (núcleo de negocio)
-│   │   ├── entities/              # Entidades de negocio
-│   │   ├── value_objects/         # Objetos de valor inmutables
-│   │   ├── repositories/          # Interfaces de repositorios (DIP)
-│   │   ├── exceptions/            # Excepciones de dominio
-│   │   └── events/                # Eventos de dominio
-│   │
-│   ├── application/               # Capa de Aplicación
-│   │   ├── services/              # Casos de uso / Servicios
-│   │   ├── dtos/                  # Data Transfer Objects
-│   │   ├── interfaces/            # Interfaces de servicios externos
-│   │   └── mappers/               # Conversores Entity <-> DTO
-│   │
-│   ├── infrastructure/            # Capa de Infraestructura
-│   │   ├── persistence/           # Implementaciones de persistencia
-│   │   │   └── repositories/      # Implementaciones concretas de repos
-│   │   ├── external_services/     # Clientes de APIs externas
-│   │   ├── logging/               # Implementación de logging
-│   │   └── config/                # Configuraciones (Settings, env vars)
-│   │
-│   └── interface/                 # Capa de Interface (Adaptadores)
-│       ├── api/                   # Endpoints REST
-│       │   ├── routes/            # Agrupación de rutas
-│       │   ├── middleware/        # Middleware de FastAPI
-│       │   ├── dependencies/      # Dependencias inyectables
-│       │   └── schemas/           # Schemas Pydantic para requests/responses
-│       └── main.py                # Punto de entrada FastAPI
-│
-├── tests/                         # Tests siguiendo estructura src/
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── value_objects/
+│   │   ├── repositories/
+│   │   ├── exceptions/
+│   │   └── events/
+│   ├── application/
+│   │   ├── services/
+│   │   ├── dtos/
+│   │   ├── interfaces/
+│   │   └── mappers/
+│   ├── infrastructure/
+│   │   ├── persistence/
+│   │   │   └── repositories/
+│   │   ├── external_services/
+│   │   ├── logging/
+│   │   └── config/
+│   └── interface/
+│       └── api/
+│           ├── routes/
+│           ├── middleware/
+│           ├── dependencies/
+│           └── schemas/
+│       └── main.py
+├── tests/
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── interface/
-│
-├── docs/                          # Documentación adicional
-├── scripts/                       # Scripts utilitarios
-├── .env.example                   # Template de variables de entorno
-├── .env                           # Variables de entorno (no commitear)
-├── .python-version                # Versión de Python para UV
-├── pyproject.toml                 # Configuración del proyecto y herramientas
-├── uv.lock                        # Lock file de dependencias (reproducible)
-└── README.md                      # Este archivo
+│   └── test_setup.py
+├── docs/
+├── data/
+├── htmlcov/
+├── pyproject.toml
+├── uv.lock
+├── Dockerfile
+├── docker-compose.app.yml
+├── docker-compose.db.yml
+├── .env.example
+├── .env
+├── .python-version
+├── .gitignore
+├── .dockerignore
+├── LICENSE
+└── README.md
 ```
 
 ## Requisitos
 
-- Python >= 3.11 (gestionado automáticamente por UV)
-- [UV](https://docs.astral.sh/uv/getting-started/installation/) - Gestor de paquetes y entornos virtuales
-- MongoDB (local o en la nube) 
+- Python ≥ 3.11 (gestionado vía UV si se usan los comandos locales; en Docker la imagen ya lo trae).
+- [UV](https://docs.astral.sh/uv/getting-started/installation/) — gestor de dependencias y entornos virtuales.
+- Docker y Docker Compose — necesarios para correr la API y MongoDB en contenedores.
+- MongoDB 7+ accesible (local o en contenedor).
 
-## Instalación
+## Puesta en funcionamiento
 
-### 1. Instalar UV
+Levanta la **API** y **MongoDB** en contenedores separados pero conectados por una red compartida. Es la vía recomendada porque reproduce el entorno de producción y mantiene la base de datos aislada y persistente.
 
-Si aún no tienes UV instalado:
+### 1. Instalar UV (solo la primera vez)
+
+Es el gestor de dependencias usado por el `Dockerfile`. El binario se invoca dentro del build aunque la app corra en contenedor, por lo que se necesita disponible en la máquina para preparar el lock reproducible.
 
 ```bash
-# Linux/Mac
+# Linux/macOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Windows (PowerShell)
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# O con pip
-pip install uv
 ```
 
 ### 2. Clonar el repositorio
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/MaJuVer/pdf-extractext.git
 cd pdf-extractext
 ```
 
-### 3. Crear entorno virtual e instalar dependencias
+### 3. Preparar el archivo de variables de entorno
 
-UV gestiona automáticamente el entorno virtual y las dependencias:
-
-```bash
-# Instalar todas las dependencias (incluye dev)
-uv sync
-
-# Solo dependencias de producción
-uv sync --no-dev
-```
-
-Esto creará automáticamente el entorno virtual (`.venv`) e instalará todas las dependencias según el `uv.lock`.
-
-### 4. Configurar variables de entorno
+Copiar el template y completar los valores. El archivo real (`.env`) no debe versionarse.
 
 ```bash
 cp .env.example .env
-# Editar .env con tus configuraciones
 ```
 
-**Variables importantes:**
+Variables requeridas (alineadas con `Settings` en `src/infrastructure/config/settings.py`):
+
+| Variable    | Descripción                          | Ejemplo                  |
+|-------------|---------------------------------------|---------------------------|
+| MONGO_USER  | Usuario root de MongoDB               | admin                     |
+| MONGO_PASS  | Password del usuario root             | valor seguro              |
+| MONGO_HOST  | Host del servicio MongoDB             | mongodb (red Compose)     |
+| MONGO_PORT  | Puerto de MongoDB                     | 27017                     |
+| MONGO_DB    | Nombre de la base                     | pdf-extractext            |
+| debug       | Modo debug de FastAPI (true/false)    | true       |
+| MAX_SIZE    | Tamaño máximo del PDF en bytes        | 20971520 (20 MB)          |
+| MIN_SIZE    | Tamaño mínimo del PDF en bytes        | 1                         |
+
+### 4. Crear la red compartida (una sola vez)
+
+Ambos `docker-compose` (`db.yml` y `app.yml`) declaran la red como `external`, por lo que debe existir antes del primer `up`.
 
 ```bash
-# Aplicación
-ENVIRONMENT=development
-DEBUG=true
-APP_NAME="PDF-ExtractExt"
-APP_VERSION=0.1.0
-
-# Servidor
-HOST=0.0.0.0
-PORT=8000
-
-# MongoDB
-DATABASE_URL=mongodb://localhost:27017
-DATABASE_NAME=pdf_extractext_db
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+docker network create shared-app-network
 ```
 
-## Uso
-
-### Ejecutar el servidor de desarrollo
-
-Con UV puedes ejecutar comandos sin activar manualmente el entorno virtual:
+### 5. Levantar MongoDB
 
 ```bash
-# Ejecutar uvicorn con recarga automática
-uv run uvicorn src.interface.main:app --reload --host 0.0.0.0 --port 8000
-
-# O usando el script configurado
-uv run python -m src.interface.main
+docker compose -f docker-compose.db.yml --env-file .env up -d
 ```
 
-El comando `uv run` activa automáticamente el entorno virtual y ejecuta el comando dentro de él.
+Esto inicia el contenedor `mongodb_db` con volumen persistente en `./data/mongo`.
 
-### Documentación de la API
-
-Una vez iniciado el servidor, accede a:
-
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Endpoints disponibles
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/health` | Health check - Verifica estado del servicio |
-
-## Testing
-
-El proyecto utiliza **PyTest** con cobertura de código.
+### 6. Levantar la API
 
 ```bash
-# Ejecutar todos los tests
+docker compose -f docker-compose.app.yml --env-file .env up -d --build
+```
+
+La API quedará escuchando en `http://localhost:8000`.
+
+### 7. Verificar el estado del servicio
+
+```bash
+curl http://localhost:8000/health
+```
+
+Respuesta esperada:
+
+```json
+{"status":"healthy","timestamp":"...","version":"0.1.0"}
+```
+
+### 8. Probar el flujo principal
+
+Subir un PDF y descargar el `.txt`:
+
+```bash
+curl -X POST http://localhost:8000/pdf/process \
+  -F "file=@./ejemplo.pdf" \
+  -o texto_extraido.txt
+```
+
+O puedes ir a (si colocaste debug=true):
+```bash
+http://localhost:8000/docs
+```
+
+
+Listar los registros persistidos:
+
+```bash
+curl http://localhost:8000/registros
+```
+
+
+### 9. Apagar los servicios
+
+```bash
+docker compose -f docker-compose.app.yml down
+docker compose -f docker-compose.db.yml down
+```
+
+Los datos permanecen en `./data/mongo`.
+
+## Endpoints
+
+| Método | Endpoint                  | Descripción                                       |
+|--------|----------------------------|----------------------------------------------------|
+| GET    | `/health`                  | Health check del servicio                          |
+| GET    | `/health/ready`            | Readiness check                                     |
+| POST   | `/pdf/process`             | Recibe un PDF y devuelve el texto extraído como `.txt` |
+| GET    | `/registros`                | Lista paginada de registros                         |
+| GET    | `/registros/{id}`          | Obtiene un registro por UUID                        |
+| GET    | `/registros/hash/{hash}`   | Obtiene un registro por hash SHA256                 |
+| PUT    | `/registros/{id}`          | Actualiza el contenido extraído de un registro      |
+| DELETE | `/registros/{id}`          | Elimina un registro                                 |
+
+## Testing, Lint y Type-check
+
+Ejecutar todos los tests con cobertura:
+
+```bash
 uv run pytest
-
-# Ejecutar con cobertura detallada
-uv run pytest --cov=src --cov-report=term-missing --cov-report=html
-
-# Ejecutar tests específicos
-uv run pytest tests/domain/
-uv run pytest tests/interface/test_health.py
-
-# Ejecutar en modo verbose
-uv run pytest -v
 ```
 
-### Cobertura mínima
-
-El proyecto está configurado para reportar cobertura. Puedes revisar el reporte HTML generado en `htmlcov/index.html`.
-
-## Linting y Type Checking
-
-### Ruff (Linter y Formateador)
+Linter y formateador:
 
 ```bash
-# Verificar errores
 uv run ruff check .
-
-# Corregir errores automáticamente
-uv run ruff check . --fix
-
-# Formatear código
 uv run ruff format .
 ```
 
-### MyPy (Type Checker)
+Type checking estricto:
 
 ```bash
-# Verificar tipos
 uv run mypy src
-
-# Verificar con informe detallado
-uv run mypy src --show-error-codes
 ```
 
-### Pre-commit (Opcional)
-
-```bash
-# Instalar hooks de pre-commit
-uv run pre-commit install
-
-# Ejecutar manualmente
-uv run pre-commit run --all-files
-```
-
-## Comandos Útiles de UV
-
-```bash
-# Agregar nueva dependencia
-uv add <package>
-
-# Agregar dependencia de desarrollo
-uv add --dev <package>
-
-# Actualizar dependencias
-uv sync --upgrade
-
-# Ejecutar shell dentro del entorno
-uv run bash
-
-# Ver información del entorno
-uv pip list
-```
-### Configuración de Entorno con Docker
-
-Para este proyecto utilizamos **Docker** y **Docker Compose** para gestionar la base de datos MongoDB de forma aislada y persistente.
-
-### 1. Instalación de Docker (en Fedora)
-Si aún no tenés Docker, ejecutá estos comandos en tu terminal:
-
-```bash
-# Instalar dependencias y repo oficial
-sudo dnf install dnf-plugins-core
-sudo dnf config-manager --add-repo [https://download.docker.com/linux/fedora/docker-ce.repo](https://download.docker.com/linux/fedora/docker-ce.repo)
-
-# Instalar motor de Docker y Compose
-sudo dnf install docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-# Iniciar y habilitar el servicio
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Opcional: Agregar tu usuario al grupo docker para no usar sudo (requiere reiniciar sesión)
-# sudo usermod -aG docker $USER
-```
-
-## Flujo de Dependencias
-
-```
-Controller (Interface/API)
-    ↓
-Service (Application)
-    ↓
-Repository Interface (Domain) ← Repository Implementation (Infrastructure)
-    ↓
-Entity (Domain)
-```
-
-Esta estructura garantiza que:
-- El dominio no depende de frameworks externos
-- Las capas interiores son independientes
-- Es fácil cambiar implementaciones (ej: cambiar MongoDB por PostgreSQL)
-- El código es altamente testeable con mocks
+Reporte HTML de cobertura disponible en `htmlcov/index.html`.
 
 ## Licencia
 
-MIT License - Ver archivo [LICENSE](LICENSE) para más detalles.
+MIT — ver archivo [LICENSE](LICENSE).
 
 Copyright (c) 2026 MaJuVer
-
----
-

@@ -1,20 +1,14 @@
 from src.application.dtos.pdf_dtos import ArchivoEntradaDTO
 from src.domain.exceptions.domain_exception import ValidationException
-from src.infrastructure.config.settings import get_settings
 
-def restriction_verifier(archivo_dto : ArchivoEntradaDTO):
-    #instanciamos configuracion
-    settings=get_settings()
+def verificar_restricciones(archivo_dto : ArchivoEntradaDTO,max_size: int,min_size: int)-> None:
 
-    #Verificacion de la extendion 
+    
     if archivo_dto.extension.lower() != "pdf" :
-        #Tiramos excepcion 
         raise ValidationException("El archivo debe ser un pdf ")
-    #Verificacion de tamaño-
-    if len(archivo_dto.contenido) >= settings.max_size :
-        #Tiramos excepcion-
+    
+    if len(archivo_dto.contenido) >= max_size :
         raise ValidationException("El archivo es demasiado grande")
-    #Verificacion archivo no vacio 
-    if len(archivo_dto.contenido) < settings.min_size :
-        #TIramos excepcion-
+     
+    if len(archivo_dto.contenido) < min_size :
         raise ValidationException("El archivo esta vacio")

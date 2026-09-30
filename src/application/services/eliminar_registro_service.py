@@ -1,10 +1,9 @@
 from src.domain.repositories.base_repository import BaseRepository
 
+
 class EliminarRegistroService:
     def __init__(self, repository: BaseRepository):
         self.repository = repository
 
-    def ejecutar(self, id_registro) -> bool:
-        # Delegamos la responsabilidad de eliminar al repositorio 
-        # y devolvemos el resultado (True si se borró, False si no existía)
-        return self.repository.eliminar_por_id(id_registro)
+    def ejecutar(self, id_registro: str) -> bool:
+        return self.repository.delete(id_registro)

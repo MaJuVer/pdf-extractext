@@ -10,7 +10,7 @@ from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 def test_obtener_registro_existente(): 
     #Arrange 
     #ID falso y registro de prueba simulando contenidos en BD 
-    fake_id = uuid4
+    fake_id = uuid4()
     registro_simulado= RegistroProcesamiento(
         id= fake_id,
         nombre_archivo_original="archivo.pdf" , 
@@ -20,7 +20,7 @@ def test_obtener_registro_existente():
 
     mock_repository=Mock()
 
-    mock_repository.obtener_por_id.return_value= registro_simulado
+    mock_repository.get_by_id.return_value = registro_simulado
 
     service= ObtenerRegistroService(mock_repository)
 
@@ -32,4 +32,4 @@ def test_obtener_registro_existente():
     assert resultado_dto.id == fake_id
     assert resultado_dto.nombre_archivo_original == "archivo.pdf"
 # Verificamos que el servicio efectivamente haya llamado al repositorio con el ID correcto
-    mock_repository.obtener_por_id.assert_called_once_with(fake_id)
+    mock_repository.get_by_id.assert_called_once_with(fake_id)

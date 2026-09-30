@@ -27,6 +27,8 @@ dependencies = [
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "pypdf>=6.11.0",
+    "python-multipart>=0.0.32",
+    "motor>=3.7.1",
 ]
 
 [project.optional-dependencies]

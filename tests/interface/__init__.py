@@ -1,6 +1,6 @@
 """
 Tests de la capa de interface.
 
-Prueban endpoints y middleware.
+Prueban endpoints HTTP.
 Usan TestClient de FastAPI.
 """

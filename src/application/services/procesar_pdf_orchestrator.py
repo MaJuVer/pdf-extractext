@@ -10,7 +10,6 @@ Coordina el flujo de negocio:
 6. Generar archivo .txt de salida
 """
 
-
 from src.application.dtos.pdf_dtos import (
     ArchivoEntradaDTO,
     ProcesarPdfOutputDTO,
@@ -20,7 +19,7 @@ from src.application.interfaces.pdf_extractor_interface import PDFExtractorInter
 from src.application.services.extraer_texto import ExtraerTexto
 from src.application.services.generar_archivo_txt import GenerarArchivoTxtUseCase
 from src.application.services.guardar_registro_service import GuardarRegistroService
-from src.application.services.pdf_validator import restriction_verifier
+from src.application.services.pdf_validator import verificar_restricciones
 from src.domain.entities.documento_pdf import DocumentoPDF
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 from src.domain.exceptions.pdf_exceptions import PDFInvalidException
@@ -58,16 +57,18 @@ class ProcesarPdfOrchestrator:
         self,
         extractor: PDFExtractorInterface,
         repository: RegistroProcesamientoRepository,
+        max_size: int,
+        min_size: int,
     ) -> None:
         self._extractor = extractor
         self._repository = repository
+        self._max_size = max_size
+        self._min_size = min_size
         self._extraer_texto_service = ExtraerTexto(extractor)
         self._guardar_registro_service = GuardarRegistroService(repository)
         self._generar_txt_use_case = GenerarArchivoTxtUseCase()
 
-    def execute(
-        self, archivo_dto: ArchivoEntradaDTO
-    ) -> ProcesarPdfOutputDTO:
+    def execute(self, archivo_dto: ArchivoEntradaDTO) -> ProcesarPdfOutputDTO:
         """
         Ejecuta el flujo completo de procesamiento de PDF.
 
@@ -83,7 +84,7 @@ class ProcesarPdfOrchestrator:
             DocumentoSinTextoException: Si el PDF no contiene texto.
             DocumentoDuplicadoException: Si el hash ya existe (edge case).
         """
-        restriction_verifier(archivo_dto)
+        verificar_restricciones(archivo_dto, self._max_size, self._min_size)
 
         self._validar_magic_bytes(archivo_dto.contenido, archivo_dto.nombre)
 
@@ -96,7 +97,7 @@ class ProcesarPdfOrchestrator:
         if registro_existente is not None:
             return self._procesar_ruta_cacheado(registro_existente, documento.nombre_archivo)
 
-        return self._procesar_ruta_nuevo(documento)
+        return self._procesar_ruta_nuevo(documento, hash_contenido)
 
     def _validar_magic_bytes(self, contenido: bytes, nombre_archivo: str) -> None:
         """
@@ -157,23 +158,22 @@ class ProcesarPdfOrchestrator:
             fue_cacheado=True,
         )
 
-    def _procesar_ruta_nuevo(self, documento: DocumentoPDF) -> ProcesarPdfOutputDTO:
+    def _procesar_ruta_nuevo(self, documento: DocumentoPDF, hash_contenido: str) -> ProcesarPdfOutputDTO:
         """
         Procesa un documento nuevo: extrae texto, guarda y genera archivo.
 
         Args:
             documento: Entidad DocumentoPDF a procesar.
+            hash_contenido: Hash SHA256 ya calculado del documento.
 
         Returns:
             ProcesarPdfOutputDTO con datos del nuevo procesamiento.
         """
         texto_dto = self._extraer_texto_service.execute(documento)
 
-        registro_dto = self._guardar_registro_service.ejecutar(documento, texto_dto)
+        registro_dto = self._guardar_registro_service.ejecutar(documento, texto_dto, hash_contenido)
 
-        archivo_salida = self._generar_txt_use_case.execute(
-            texto_dto, documento.nombre_archivo
-        )
+        archivo_salida = self._generar_txt_use_case.execute(texto_dto, documento.nombre_archivo)
 
         return ProcesarPdfOutputDTO(
             archivo_salida=archivo_salida,

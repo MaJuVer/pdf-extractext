@@ -2,7 +2,7 @@
 Punto de entrada principal de la aplicación FastAPI.
 
 Configura la aplicación FastAPI con:
-- Middleware de manejo de errores
+- Ciclo de vida de la base de datos (índices y cierre del cliente)
 - Routers de la API
 - Configuración de CORS
 - Documentación automática
@@ -13,45 +13,36 @@ lógica de negocio, solo configuración de la aplicación web.
 """
 
 import logging
-import pymongo
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from contextlib import asynccontextmanager
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from src.infrastructure.config.settings import Settings
+from src.infrastructure.config.settings import Settings, get_settings
+from src.infrastructure.persistence.database import close_client, get_db
+from src.infrastructure.persistence.indexes import ensure_indexes
 from src.interface.api.routes.health import router as health_router
 from src.interface.api.routes.pdf import router as pdf_router
 from src.interface.api.routes.registro_routes import router as registro_router
 
-from src.infrastructure.config.settings import Settings
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-logger = logging.getLogger(__name__)
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    app.mongodb_client = AsyncIOMotorClient(Settings.MONGO_URL)
-    app.mongodb = app.mongodb_client[Settings.MONGO_DB]
-
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Prepara la base de datos al arrancar y cierra el cliente al salir."""
+    db_generator = get_db()
+    ensure_indexes(next(db_generator))
     try:
-        await app.mongodb["registros"].create_index(
-            [("hash_contenido", pymongo.ASCENDING)],
-            unique=True
-        )
-    except Exception as e:
-        logger.error(f"Error al preparar la base de datos: {e}")
+        yield
+    finally:
+        close_client()
 
-    yield
-
-    app.mongodb_client.close()
 
 def create_application() -> FastAPI:
     """
@@ -60,7 +51,7 @@ def create_application() -> FastAPI:
     Returns:
         FastAPI: Instancia configurada de la aplicación.
     """
-    settings = Settings()
+    settings = get_settings()
 
     application = FastAPI(
         title=settings.app_name,
@@ -69,6 +60,7 @@ def create_application() -> FastAPI:
         debug=settings.debug,
         docs_url="/docs" if settings.debug else None,
         redoc_url="/redoc" if settings.debug else None,
+        lifespan=lifespan,
     )
 
     _configure_middleware(application, settings)
@@ -88,7 +80,7 @@ def _configure_middleware(application: FastAPI, settings: Settings) -> None:
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_credentials=True,
+        allow_credentials="*" not in settings.cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -107,3 +99,10 @@ def _configure_routers(application: FastAPI) -> None:
 
 
 app = create_application()
+
+
+def main() -> None:
+    """Ejecuta la API con Uvicorn (entrypoint de `uv run run`)."""
+    import uvicorn
+
+    uvicorn.run("src.interface.main:app", host="0.0.0.0", port=8000)

@@ -7,6 +7,7 @@ sin exponer entidades del dominio.
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class BaseInputDTO:
     """

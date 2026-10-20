@@ -24,22 +24,8 @@ dependencies = [
     "pydantic>=2.6.0",
     "pydantic-settings>=2.2.0",
     "pymongo>=4.6.0",
-    "pytest>=9.0.3",
-    "pytest-cov>=7.1.0",
     "pypdf>=6.11.0",
     "python-multipart>=0.0.32",
-    "motor>=3.7.1",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.1.0",
-    "httpx>=0.25.0",
-    "mypy>=1.7.0",
-    "pre-commit>=3.5.0",
-    "ruff>=0.3.0", # Ruff reemplaza a black, isort y flake8
 ]
 
 [project.scripts]
@@ -68,6 +54,7 @@ indent-style = "space"
 # ============================================
 [tool.mypy]
 python_version = "3.11"
+plugins = ["pydantic.mypy"]
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -94,11 +81,16 @@ omit = ["*/tests/*", "*/__init__.py", "*/main.py"]
 
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "pass", "raise NotImplementedError", "if TYPE_CHECKING:"]
+fail_under = 80
 
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
     "mongomock>=4.3.0",
     "mypy>=1.20.0",
+    "pre-commit>=3.5.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.3.0",
 ]
-# fail_under = 80

@@ -5,6 +5,7 @@ Estos tests definen el comportamiento esperado del orquestador
 que coordina el flujo completo de procesamiento de PDF.
 """
 
+from dataclasses import FrozenInstanceError
 from io import BytesIO
 from unittest.mock import MagicMock
 
@@ -15,11 +16,9 @@ from src.application.dtos.pdf_dtos import (
     ArchivoSalidaDTO,
     ProcesarPdfOutputDTO,
     RegistroProcesamientoOutputDTO,
-    TextoExtraidoDTO,
 )
 from src.application.interfaces.pdf_extractor_interface import PDFExtractorInterface
 from src.application.services.procesar_pdf_orchestrator import ProcesarPdfOrchestrator
-from src.domain.entities.documento_pdf import DocumentoPDF
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 from src.domain.exceptions.domain_exception import DocumentoDuplicadoException, ValidationException
 from src.domain.exceptions.pdf_exceptions import DocumentoSinTextoException, PDFInvalidException
@@ -49,7 +48,6 @@ class TestProcesarPdfOrchestrator:
 
         mock_repo = MagicMock(spec=RegistroProcesamientoRepository)
         mock_repo.get_by_hash.return_value = None
-        mock_repo.find_by_hash.return_value = None
         entidad_guardada = RegistroProcesamiento(
             nombre_archivo_original="documento.pdf",
             contenido_extraido=texto_extraido,
@@ -60,6 +58,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=mock_extractor,
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         resultado = orchestrator.execute(archivo_dto)
@@ -94,6 +94,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=mock_extractor,
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         resultado = orchestrator.execute(archivo_dto)
@@ -121,6 +123,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=mock_extractor,
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         with pytest.raises(ValidationException):
@@ -144,6 +148,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=mock_extractor,
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         with pytest.raises(PDFInvalidException):
@@ -169,6 +175,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=mock_extractor,
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         with pytest.raises(DocumentoSinTextoException):
@@ -195,6 +203,8 @@ class TestProcesarPdfOrchestrator:
         orchestrator = ProcesarPdfOrchestrator(
             extractor=MagicMock(),
             repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
         )
 
         resultado = orchestrator.execute(archivo_dto)
@@ -203,6 +213,32 @@ class TestProcesarPdfOrchestrator:
         buffer.seek(0)
         assert buffer.read().decode("utf-8") == texto_cacheado
         assert resultado.archivo_salida.nombre == "original.txt"
+
+    def test_carrera_de_duplicado_propaga_excepcion(self) -> None:
+        """Si el índice único detecta una carrera, se propaga la excepción."""
+        contenido_pdf = b"%PDF-1.4 " + b"q" * 100
+        archivo_dto = ArchivoEntradaDTO(
+            nombre="carrera.pdf",
+            contenido=contenido_pdf,
+            extension="pdf",
+        )
+
+        mock_extractor = MagicMock(spec=PDFExtractorInterface)
+        mock_extractor.extract_text.return_value = "Texto"
+
+        mock_repo = MagicMock(spec=RegistroProcesamientoRepository)
+        mock_repo.get_by_hash.return_value = None
+        mock_repo.add.side_effect = DocumentoDuplicadoException(hash_contenido="hash")
+
+        orchestrator = ProcesarPdfOrchestrator(
+            extractor=mock_extractor,
+            repository=mock_repo,
+            max_size=10_000,
+            min_size=1,
+        )
+
+        with pytest.raises(DocumentoDuplicadoException):
+            orchestrator.execute(archivo_dto)
 
 
 class TestProcesarPdfOutputDTO:
@@ -227,5 +263,5 @@ class TestProcesarPdfOutputDTO:
             fue_cacheado=False,
         )
 
-        with pytest.raises(AttributeError):
+        with pytest.raises(FrozenInstanceError):
             dto.fue_cacheado = True

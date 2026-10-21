@@ -6,10 +6,12 @@ from src.application.dtos.pdf_dtos import (
     RegistroProcesamientoOutputDTO,
     TextoExtraidoDTO,
 )
+from src.application.dtos.registro_dtos import RegistrosPaginadosDTO
 
 __all__ = [
     "ArchivoEntradaDTO",
     "ArchivoSalidaDTO",
     "TextoExtraidoDTO",
     "RegistroProcesamientoOutputDTO",
+    "RegistrosPaginadosDTO",
 ]

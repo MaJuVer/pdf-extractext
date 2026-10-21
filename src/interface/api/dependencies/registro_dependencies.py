@@ -2,11 +2,14 @@
 Factory de dependencias para los servicios de RegistroProcesamiento.
 """
 
-from src.application.services.actualizar_registro_service import ActualizarRegistroService
+from src.application.services.actualizar_registro_service import (
+    ActualizarRegistroService,
+)
 from src.application.services.eliminar_registro_service import EliminarRegistroService
+from src.application.services.listar_registros_service import ListarRegistrosService
+from src.application.services.obtener_por_hash_service import ObtenerPorHashService
 from src.application.services.obtener_registro_service import ObtenerRegistroService
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
-from src.domain.repositories.base_repository import BaseRepository
 from src.infrastructure.persistence.database import get_db
 from src.infrastructure.persistence.repositories.registro_procesamiento_repository import (
     RegistroProcesamientoMongoRepositoryImpl,
@@ -43,6 +46,11 @@ def get_eliminar_registro_service() -> EliminarRegistroService:
     return EliminarRegistroService(repository=get_registro_repository())
 
 
-def get_base_repository() -> BaseRepository[RegistroProcesamiento]:
-    """Factory para obtener el repositorio base (usado directamente en listado)."""
-    return get_registro_repository()
+def get_listar_registros_service() -> ListarRegistrosService:
+    """Factory para ListarRegistrosService."""
+    return ListarRegistrosService(repository=get_registro_repository())
+
+
+def get_obtener_por_hash_service() -> ObtenerPorHashService:
+    """Factory para ObtenerPorHashService."""
+    return ObtenerPorHashService(repository=get_registro_repository())

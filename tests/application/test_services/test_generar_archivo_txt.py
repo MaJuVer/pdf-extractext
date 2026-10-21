@@ -3,9 +3,7 @@ from src.application.services.generar_archivo_txt import GenerarArchivoTxtUseCas
 
 
 def test_generar_archivo_txt_devuelve_buffer_con_contenido():
-    dto_entrada = TextoExtraidoDTO(
-        contenido="Hola mundo", cantidad_caracteres=10, cantidad_palabras=2
-    )
+    dto_entrada = TextoExtraidoDTO(contenido="Hola mundo", cantidad_caracteres=10, cantidad_palabras=2)
     nombre_original = "documento.pdf"
 
     caso_uso = GenerarArchivoTxtUseCase()

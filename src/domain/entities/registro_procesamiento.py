@@ -52,11 +52,7 @@ class RegistroProcesamiento(BaseEntity):
             String con información resumida del registro.
         """
         longitud_texto = len(self.contenido_extraido)
-        return (
-            f"Registro[{self.id}]: "
-            f"'{self.nombre_archivo_original}' "
-            f"({longitud_texto} caracteres extraídos)"
-        )
+        return f"Registro[{self.id}]: '{self.nombre_archivo_original}' ({longitud_texto} caracteres extraídos)"
 
     def longitud_contenido(self) -> int:
         """

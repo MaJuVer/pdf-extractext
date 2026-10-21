@@ -1,43 +1,39 @@
 import pytest
 
-from src.application.dtos.pdf_dtos import ArchivoEntradaDTO 
+from src.application.dtos.pdf_dtos import ArchivoEntradaDTO
+from src.application.services.pdf_validator import verificar_restricciones
 from src.domain.exceptions.domain_exception import ValidationException
-from src.application.services.pdf_validator import restriction_verifier
 
-def test_rechaza_archivo_que_no_sea_pdf():
-    #1 Arrange
-    dto_invalido= ArchivoEntradaDTO(
-        nombre="documento.txt",
-        contenido=b"contenido falso"*10,
-        extension="txt"
+MAX_SIZE = 1024
+MIN_SIZE = 1
+
+
+def _dto(extension: str = "pdf", contenido: bytes = b"%PDF-1.4 contenido") -> ArchivoEntradaDTO:
+    return ArchivoEntradaDTO(
+        nombre=f"documento.{extension}",
+        contenido=contenido,
+        extension=extension,
     )
+
+
+def test_rechaza_archivo_que_no_sea_pdf() -> None:
+    with pytest.raises(ValidationException):
+        verificar_restricciones(_dto(extension="txt"), MAX_SIZE, MIN_SIZE)
+
+
+def test_archivo_valido_pdf() -> None:
+    verificar_restricciones(_dto(), MAX_SIZE, MIN_SIZE)
+
+
+def test_archivo_grande_rechazado() -> None:
+    dto_invalido = _dto(contenido=b"A" * MAX_SIZE)
 
     with pytest.raises(ValidationException):
-        restriction_verifier(dto_invalido)
+        verificar_restricciones(dto_invalido, MAX_SIZE, MIN_SIZE)
 
-def test_archivo_valido_pdf():
-    dto_valido = ArchivoEntradaDTO(
-        nombre="documento.pdf",
-        contenido=b"contenido falso"*10 ,
-        extension= "pdf"
-    )
 
-    restriction_verifier(dto_valido)
+def test_archivo_vacio_rechazado() -> None:
+    dto_invalido = _dto(contenido=b"")
 
-def test_archivo_grande_rechazado():
-    dto_invalido= ArchivoEntradaDTO(
-        nombre="archivo_falso",
-        contenido= b"A"*200000000 ,
-        extension = "pdf"
-    )
     with pytest.raises(ValidationException):
-        restriction_verifier(dto_invalido)
-
-def test_archivo_vacio():
-    dto_invalido = ArchivoEntradaDTO(
-        nombre= "archivo_vacio" , 
-        contenido = b"",
-        extension= "pdf" 
-    )
-    with pytest.raises(ValidationException):
-        restriction_verifier(dto_invalido)
+        verificar_restricciones(dto_invalido, MAX_SIZE, MIN_SIZE)

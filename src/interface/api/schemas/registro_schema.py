@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from src.interface.api.schemas.base_schema import BaseSchema
 
@@ -18,17 +18,18 @@ class RegistroProcesamientoBase(BaseSchema):
     contenido_extraido: str
 
 
-class RegistroProcesamientoCreate(RegistroProcesamientoBase):
-    """Schema para crear un registro (no se usa directamente en este proyecto)."""
-
-    hash_contenido: str = Field(..., min_length=64, max_length=64)
-
-
 class RegistroProcesamientoUpdate(BaseSchema):
     """Schema para actualizar un registro."""
 
     nombre_archivo_original: Optional[str] = Field(None, min_length=1, max_length=255)
     contenido_extraido: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validar_al_menos_un_campo(self) -> "RegistroProcesamientoUpdate":
+        """Exige al menos un campo para actualizar."""
+        if self.nombre_archivo_original is None and self.contenido_extraido is None:
+            raise ValueError("Debe proporcionar al menos un campo para actualizar.")
+        return self
 
 
 class RegistroProcesamientoResponse(BaseSchema):
@@ -71,11 +72,3 @@ class RegistroDeleteResponse(BaseSchema):
     eliminado: bool
     id_registro: str
     mensaje: str
-
-
-class ErrorResponseSchema(BaseSchema):
-    """Schema para respuestas de error."""
-
-    error: str
-    message: str
-    code: Optional[str] = None

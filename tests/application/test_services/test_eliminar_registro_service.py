@@ -1,27 +1,20 @@
-from unittest.mock import Mock
+from unittest.mock import MagicMock
 from uuid import uuid4
+
 from src.application.services.eliminar_registro_service import EliminarRegistroService
+from src.domain.repositories.registro_procesamiento_repository import (
+    RegistroProcesamientoRepository,
+)
 
-def test_eliminar_registro_existente():
-    # ARRANGE
-    # Creamos un ID falso de prueba
-    fake_id = uuid4()
-    
-    # Creamos nuestro repositorio falso
-    mock_repository = Mock()
-    
-    # Le decimos al mock que cuando le pidan eliminar, devuelva True (simulando éxito)
+
+def test_eliminar_registro_existente() -> None:
+    fake_id = str(uuid4())
+
+    mock_repository = MagicMock(spec=RegistroProcesamientoRepository)
     mock_repository.delete.return_value = True
-    
-    # Instanciamos el servicio (que todavía no existe) inyectándole el mock
-    service = EliminarRegistroService(mock_repository)
 
-    # ACT
-    # Mandamos a ejecutar la eliminación
+    service = EliminarRegistroService(mock_repository)
     resultado = service.ejecutar(fake_id)
 
-    # ASSERT
-    # Verificamos que el servicio nos devuelva True
     assert resultado is True
-    # Verificamos que el servicio realmente haya llamado al método del repositorio con el ID correcto
-    mock_repository.eliminar_por_id.assert_called_once_with(fake_id)
+    mock_repository.delete.assert_called_once_with(fake_id)

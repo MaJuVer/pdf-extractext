@@ -1,14 +1,9 @@
-from src.application.dtos.base_dto import EmptyInputDTO
 from src.application.dtos.pdf_dtos import RegistroProcesamientoOutputDTO
-from src.application.mappers.base_mapper import BaseMapper
 from src.domain.entities.registro_procesamiento import RegistroProcesamiento
 
 
-class RegistroProcesamientoMapper(
-    BaseMapper[RegistroProcesamiento, EmptyInputDTO, RegistroProcesamientoOutputDTO]
-):
-    def to_entity(self, dto: EmptyInputDTO) -> RegistroProcesamiento:
-        raise NotImplementedError("No se usa en este caso")
+class RegistroProcesamientoMapper:
+    """Convierte entidades RegistroProcesamiento a DTOs de salida."""
 
     def to_dto(self, entity: RegistroProcesamiento) -> RegistroProcesamientoOutputDTO:
         return RegistroProcesamientoOutputDTO(

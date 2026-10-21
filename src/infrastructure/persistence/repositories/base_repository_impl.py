@@ -20,9 +20,7 @@ class BaseMongoRepositoryImpl(BaseRepository[T], Generic[T]):
     Implementación base de repositorio con MongoDB.
     """
 
-    def __init__(
-        self, db: Database, collection_name: str, entity_class: Type[T]
-    ) -> None:
+    def __init__(self, db: Database, collection_name: str, entity_class: Type[T]) -> None:
         """
         Inicializa el repositorio.
 
@@ -38,16 +36,13 @@ class BaseMongoRepositoryImpl(BaseRepository[T], Generic[T]):
         """Traduce un documento de Mongo a una Entidad de Dominio."""
         if not doc:
             return None
-        doc["id"] = UUID(doc.pop("_id"))
-        return self._entity_class(**doc)
+        entity_doc = dict(doc)
+        entity_doc["id"] = UUID(entity_doc.pop("_id"))
+        return self._entity_class(**entity_doc)
 
     def _entity_to_doc(self, entity: T) -> dict[str, Any]:
         """Traduce una Entidad de Dominio a un documento de Mongo."""
-        doc = (
-            entity.model_dump()
-            if hasattr(entity, "model_dump")
-            else entity.__dict__.copy()
-        )
+        doc = entity.__dict__.copy()
         doc["_id"] = str(doc.pop("id"))
         return doc
 
@@ -62,6 +57,13 @@ class BaseMongoRepositoryImpl(BaseRepository[T], Generic[T]):
     def get_all(self) -> List[T]:
         docs = self._collection.find()
         return [cast(T, self._doc_to_entity(doc)) for doc in docs if doc]
+
+    def get_paginated(self, skip: int, limit: int) -> tuple[List[T], int]:
+        """Obtiene una página de documentos y el total de la colección."""
+        docs = self._collection.find().skip(skip).limit(limit)
+        items = [cast(T, self._doc_to_entity(doc)) for doc in docs if doc]
+        total = self._collection.count_documents({})
+        return items, total
 
     def add(self, entity: T) -> T:
         doc = self._entity_to_doc(entity)

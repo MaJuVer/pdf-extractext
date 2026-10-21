@@ -36,7 +36,6 @@ El proyecto implementa **Clean Architecture** (Robert C. Martin). Las dependenci
 │   │   │   ┌───────────────────┐       │   │ │
 │   │   │   │   Domain Layer    │       │   │ │
 │   │   │   │   • Entities      │       │   │ │
-│   │   │   │   • Value Objects │       │   │ │
 │   │   │   │   • Repositories  │       │   │ │
 │   │   │   │   • Exceptions    │       │   │ │
 │   │   │   └───────────────────┘       │   │ │
@@ -47,10 +46,10 @@ El proyecto implementa **Clean Architecture** (Robert C. Martin). Las dependenci
 
 | Capa            | Responsabilidad                                                                |
 |------------------|---------------------------------------------------------------------------------|
-| Domain           | Entidades, value objects, interfaces de repositorio y excepciones de negocio    |
+| Domain           | Entidades, interfaces de repositorio y excepciones de negocio                   |
 | Application      | Casos de uso, DTOs, mappers y orquestadores                                     |
-| Infrastructure   | Persistencia (MongoDB), servicios externos (`pypdf`), configuración y logging   |
-| Interface        | Rutas HTTP, schemas Pydantic, dependencias inyectables y `main.py` de FastAPI   |
+| Infrastructure   | Persistencia (MongoDB), índices, servicios externos (`pypdf`) y configuración   |
+| Interface        | Rutas HTTP, schemas Pydantic, presenters, dependencias inyectables y `main.py`  |
 
 Flujo de dependencias:
 
@@ -78,10 +77,8 @@ pdf-extractext/
 ├── src/
 │   ├── domain/
 │   │   ├── entities/
-│   │   ├── value_objects/
 │   │   ├── repositories/
-│   │   ├── exceptions/
-│   │   └── events/
+│   │   └── exceptions/
 │   ├── application/
 │   │   ├── services/
 │   │   ├── dtos/
@@ -91,31 +88,27 @@ pdf-extractext/
 │   │   ├── persistence/
 │   │   │   └── repositories/
 │   │   ├── external_services/
-│   │   ├── logging/
 │   │   └── config/
 │   └── interface/
 │       └── api/
 │           ├── routes/
-│           ├── middleware/
+│           ├── presenters/
 │           ├── dependencies/
 │           └── schemas/
 │       └── main.py
 ├── tests/
+│   ├── conftest.py
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── interface/
-│   └── test_setup.py
 ├── docs/
-├── data/
-├── htmlcov/
 ├── pyproject.toml
 ├── uv.lock
 ├── Dockerfile
 ├── docker-compose.app.yml
 ├── docker-compose.db.yml
 ├── .env.example
-├── .env
 ├── .python-version
 ├── .gitignore
 ├── .dockerignore
@@ -167,10 +160,10 @@ Variables requeridas (alineadas con `Settings` en `src/infrastructure/config/set
 |-------------|---------------------------------------|---------------------------|
 | MONGO_USER  | Usuario root de MongoDB               | admin                     |
 | MONGO_PASS  | Password del usuario root             | valor seguro              |
-| MONGO_HOST  | Host del servicio MongoDB             | mongodb (red Compose)     |
+| MONGO_HOST  | Host del servicio MongoDB             | mongodb_db (red Compose)  |
 | MONGO_PORT  | Puerto de MongoDB                     | 27017                     |
 | MONGO_DB    | Nombre de la base                     | pdf-extractext            |
-| debug       | Modo debug de FastAPI (true/false)    | true       |
+| debug       | Modo debug de FastAPI (true/false)    | true                      |
 | MAX_SIZE    | Tamaño máximo del PDF en bytes        | 20971520 (20 MB)          |
 | MIN_SIZE    | Tamaño mínimo del PDF en bytes        | 1                         |
 
@@ -257,7 +250,10 @@ Los datos permanecen en `./data/mongo`.
 
 ## Testing, Lint y Type-check
 
-Ejecutar todos los tests con cobertura:
+La suite es independiente del entorno: `tests/conftest.py` fija variables de
+test por defecto, por lo que no necesita un `.env` para ejecutarse.
+
+Ejecutar todos los tests con cobertura (umbral mínimo 80 %):
 
 ```bash
 uv run pytest

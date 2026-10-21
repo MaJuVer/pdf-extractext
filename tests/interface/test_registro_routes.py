@@ -43,6 +43,10 @@ class FakeRegistroRepository(RegistroProcesamientoRepository):
     def get_all(self) -> list[RegistroProcesamiento]:
         return list(self._registros.values())
 
+    def get_paginated(self, skip: int, limit: int) -> tuple[list[RegistroProcesamiento], int]:
+        registros = list(self._registros.values())
+        return registros[skip : skip + limit], len(registros)
+
     def add(self, entity: RegistroProcesamiento) -> RegistroProcesamiento:
         self._registros[str(entity.id)] = entity
         return entity

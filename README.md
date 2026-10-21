@@ -36,7 +36,6 @@ El proyecto implementa **Clean Architecture** (Robert C. Martin). Las dependenci
 │   │   │   ┌───────────────────┐       │   │ │
 │   │   │   │   Domain Layer    │       │   │ │
 │   │   │   │   • Entities      │       │   │ │
-│   │   │   │   • Value Objects │       │   │ │
 │   │   │   │   • Repositories  │       │   │ │
 │   │   │   │   • Exceptions    │       │   │ │
 │   │   │   └───────────────────┘       │   │ │
@@ -47,7 +46,7 @@ El proyecto implementa **Clean Architecture** (Robert C. Martin). Las dependenci
 
 | Capa            | Responsabilidad                                                                |
 |------------------|---------------------------------------------------------------------------------|
-| Domain           | Entidades, value objects, interfaces de repositorio y excepciones de negocio    |
+| Domain           | Entidades, interfaces de repositorio y excepciones de negocio                   |
 | Application      | Casos de uso, DTOs, mappers y orquestadores                                     |
 | Infrastructure   | Persistencia (MongoDB), índices, servicios externos (`pypdf`) y configuración   |
 | Interface        | Rutas HTTP, schemas Pydantic, presenters, dependencias inyectables y `main.py`  |

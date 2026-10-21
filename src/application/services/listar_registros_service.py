@@ -23,13 +23,12 @@ class ListarRegistrosService:
         Returns:
             RegistrosPaginadosDTO con los items y el total disponible.
         """
-        all_registros = self._repository.get_all()
         skip = (page - 1) * page_size
-        items = all_registros[skip : skip + page_size]
+        items, total = self._repository.get_paginated(skip=skip, limit=page_size)
 
         return RegistrosPaginadosDTO(
             items=items,
-            total=len(all_registros),
+            total=total,
             page=page,
             page_size=page_size,
         )

@@ -68,6 +68,17 @@ def test_exists_indica_presencia() -> None:
     assert repo.exists(str(uuid4())) is False
 
 
+def test_get_paginated_devuelve_pagina_y_total() -> None:
+    repo = _repo()
+    for hash_contenido in ("hash-1", "hash-2", "hash-3"):
+        repo.add(_registro(hash_contenido=hash_contenido))
+
+    items, total = repo.get_paginated(skip=1, limit=1)
+
+    assert total == 3
+    assert len(items) == 1
+
+
 def test_add_duplicado_traduce_duplicate_key() -> None:
     repo = _repo()
     repo._collection.create_index(  # type: ignore[attr-defined]

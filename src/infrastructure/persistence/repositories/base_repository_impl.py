@@ -58,6 +58,13 @@ class BaseMongoRepositoryImpl(BaseRepository[T], Generic[T]):
         docs = self._collection.find()
         return [cast(T, self._doc_to_entity(doc)) for doc in docs if doc]
 
+    def get_paginated(self, skip: int, limit: int) -> tuple[List[T], int]:
+        """Obtiene una página de documentos y el total de la colección."""
+        docs = self._collection.find().skip(skip).limit(limit)
+        items = [cast(T, self._doc_to_entity(doc)) for doc in docs if doc]
+        total = self._collection.count_documents({})
+        return items, total
+
     def add(self, entity: T) -> T:
         doc = self._entity_to_doc(entity)
         self._collection.insert_one(doc)

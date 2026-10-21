@@ -55,6 +55,20 @@ class BaseRepository(ABC, Generic[T]):
         pass
 
     @abstractmethod
+    def get_paginated(self, skip: int, limit: int) -> tuple[List[T], int]:
+        """
+        Obtiene una página de entidades y el total disponible.
+
+        Args:
+            skip: Cantidad de entidades a omitir.
+            limit: Cantidad máxima de entidades a devolver.
+
+        Returns:
+            Tupla con la lista de entidades y el total de entidades.
+        """
+        pass
+
+    @abstractmethod
     def add(self, entity: T) -> T:
         """
         Agrega una nueva entidad.

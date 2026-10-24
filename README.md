@@ -251,7 +251,8 @@ Los datos permanecen en `./data/mongo`.
 ## Testing, Lint y Type-check
 
 La suite es independiente del entorno: `tests/conftest.py` fija variables de
-test por defecto, por lo que no necesita un `.env` para ejecutarse.
+test por defecto, por lo que no necesita un `.env` para ejecutarse. La
+estrategia de testing por capa está documentada en [CONTEXT.md](CONTEXT.md).
 
 Ejecutar todos los tests con cobertura (umbral mínimo 80 %):
 

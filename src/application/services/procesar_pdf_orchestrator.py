@@ -16,7 +16,7 @@ from src.application.dtos.pdf_dtos import (
     TextoExtraidoDTO,
 )
 from src.application.interfaces.pdf_extractor_interface import PDFExtractorInterface
-from src.application.services.extraer_texto import ExtraerTexto
+from src.application.services.extraer_texto import ExtraerTextoUseCase
 from src.application.services.generar_archivo_txt import GenerarArchivoTxtUseCase
 from src.application.services.guardar_registro_service import GuardarRegistroService
 from src.application.services.pdf_validator import verificar_restricciones
@@ -47,7 +47,7 @@ class ProcesarPdfOrchestrator:
         ...     extractor=PyPDFExtractor(),
         ...     repository=RegistroProcesamientoMongoRepositoryImpl(db)
         ... )
-        >>> resultado = orchestrator.execute(archivo_dto)
+        >>> resultado = orchestrator.ejecutar(archivo_dto)
         >>> # resultado.fue_cacheado indica si vino de cache
     """
 
@@ -64,11 +64,11 @@ class ProcesarPdfOrchestrator:
         self._repository = repository
         self._max_size = max_size
         self._min_size = min_size
-        self._extraer_texto_service = ExtraerTexto(extractor)
+        self._extraer_texto_service = ExtraerTextoUseCase(extractor)
         self._guardar_registro_service = GuardarRegistroService(repository)
         self._generar_txt_use_case = GenerarArchivoTxtUseCase()
 
-    def execute(self, archivo_dto: ArchivoEntradaDTO) -> ProcesarPdfOutputDTO:
+    def ejecutar(self, archivo_dto: ArchivoEntradaDTO) -> ProcesarPdfOutputDTO:
         """
         Ejecuta el flujo completo de procesamiento de PDF.
 
@@ -150,7 +150,7 @@ class ProcesarPdfOrchestrator:
             cantidad_palabras=len(contenido.split()),
         )
 
-        archivo_salida = self._generar_txt_use_case.execute(texto_dto, nombre_archivo)
+        archivo_salida = self._generar_txt_use_case.ejecutar(texto_dto, nombre_archivo)
 
         return ProcesarPdfOutputDTO(
             archivo_salida=archivo_salida,
@@ -169,11 +169,11 @@ class ProcesarPdfOrchestrator:
         Returns:
             ProcesarPdfOutputDTO con datos del nuevo procesamiento.
         """
-        texto_dto = self._extraer_texto_service.execute(documento)
+        texto_dto = self._extraer_texto_service.ejecutar(documento)
 
         registro_dto = self._guardar_registro_service.ejecutar(documento, texto_dto, hash_contenido)
 
-        archivo_salida = self._generar_txt_use_case.execute(texto_dto, documento.nombre_archivo)
+        archivo_salida = self._generar_txt_use_case.ejecutar(texto_dto, documento.nombre_archivo)
 
         return ProcesarPdfOutputDTO(
             archivo_salida=archivo_salida,

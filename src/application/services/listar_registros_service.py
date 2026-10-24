@@ -1,6 +1,9 @@
 """Caso de uso: listar registros de procesamiento con paginación."""
 
 from src.application.dtos.registro_dtos import RegistrosPaginadosDTO
+from src.application.mappers.registro_procesamiento_mapper import (
+    RegistroProcesamientoMapper,
+)
 from src.domain.repositories.registro_procesamiento_repository import (
     RegistroProcesamientoRepository,
 )
@@ -11,6 +14,7 @@ class ListarRegistrosService:
 
     def __init__(self, repository: RegistroProcesamientoRepository) -> None:
         self._repository = repository
+        self._mapper = RegistroProcesamientoMapper()
 
     def ejecutar(self, page: int, page_size: int) -> RegistrosPaginadosDTO:
         """
@@ -27,7 +31,7 @@ class ListarRegistrosService:
         items, total = self._repository.get_paginated(skip=skip, limit=page_size)
 
         return RegistrosPaginadosDTO(
-            items=items,
+            items=[self._mapper.to_detalle_dto(registro) for registro in items],
             total=total,
             page=page,
             page_size=page_size,

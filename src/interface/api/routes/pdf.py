@@ -89,7 +89,7 @@ async def procesar_pdf(
     )
 
     try:
-        resultado = orchestrator.execute(archivo_dto)
+        resultado = orchestrator.ejecutar(archivo_dto)
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -115,8 +115,6 @@ async def procesar_pdf(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno al procesar el PDF",
         ) from e
-
-    resultado.archivo_salida.buffer.seek(0)
 
     return StreamingResponse(
         content=resultado.archivo_salida.buffer,

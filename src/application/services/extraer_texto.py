@@ -4,11 +4,11 @@ from src.domain.entities.documento_pdf import DocumentoPDF
 from src.domain.exceptions.pdf_exceptions import DocumentoSinTextoException
 
 
-class ExtraerTexto:
+class ExtraerTextoUseCase:
     def __init__(self, extractor: PDFExtractorInterface) -> None:
         self._extractor = extractor
 
-    def execute(self, documento: DocumentoPDF) -> TextoExtraidoDTO:
+    def ejecutar(self, documento: DocumentoPDF) -> TextoExtraidoDTO:
         texto = self._extractor.extract_text(documento.contenido_binario)
 
         if not texto or not texto.strip():

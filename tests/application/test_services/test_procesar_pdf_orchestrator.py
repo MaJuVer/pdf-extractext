@@ -62,7 +62,7 @@ class TestProcesarPdfOrchestrator:
             min_size=1,
         )
 
-        resultado = orchestrator.execute(archivo_dto)
+        resultado = orchestrator.ejecutar(archivo_dto)
 
         assert isinstance(resultado, ProcesarPdfOutputDTO)
         assert resultado.fue_cacheado is False
@@ -98,7 +98,7 @@ class TestProcesarPdfOrchestrator:
             min_size=1,
         )
 
-        resultado = orchestrator.execute(archivo_dto)
+        resultado = orchestrator.ejecutar(archivo_dto)
 
         assert isinstance(resultado, ProcesarPdfOutputDTO)
         assert resultado.fue_cacheado is True
@@ -128,7 +128,7 @@ class TestProcesarPdfOrchestrator:
         )
 
         with pytest.raises(ValidationException):
-            orchestrator.execute(archivo_dto)
+            orchestrator.ejecutar(archivo_dto)
 
     def test_validacion_falla_por_magic_bytes_invalidos(self) -> None:
         """
@@ -153,7 +153,7 @@ class TestProcesarPdfOrchestrator:
         )
 
         with pytest.raises(PDFInvalidException):
-            orchestrator.execute(archivo_dto)
+            orchestrator.ejecutar(archivo_dto)
 
     def test_extraccion_falla_por_pdf_sin_texto(self) -> None:
         """
@@ -180,7 +180,7 @@ class TestProcesarPdfOrchestrator:
         )
 
         with pytest.raises(DocumentoSinTextoException):
-            orchestrator.execute(archivo_dto)
+            orchestrator.ejecutar(archivo_dto)
 
     def test_documento_duplicado_genera_archivo_correcto(self) -> None:
         """
@@ -201,13 +201,13 @@ class TestProcesarPdfOrchestrator:
         mock_repo.get_by_hash.return_value = registro_existente
 
         orchestrator = ProcesarPdfOrchestrator(
-            extractor=MagicMock(),
+            extractor=MagicMock(spec=PDFExtractorInterface),
             repository=mock_repo,
             max_size=10_000,
             min_size=1,
         )
 
-        resultado = orchestrator.execute(archivo_dto)
+        resultado = orchestrator.ejecutar(archivo_dto)
 
         buffer = resultado.archivo_salida.buffer
         buffer.seek(0)
@@ -238,7 +238,7 @@ class TestProcesarPdfOrchestrator:
         )
 
         with pytest.raises(DocumentoDuplicadoException):
-            orchestrator.execute(archivo_dto)
+            orchestrator.ejecutar(archivo_dto)
 
 
 class TestProcesarPdfOutputDTO:

@@ -27,7 +27,7 @@ class FakeOrchestrator:
     def __init__(self, error: Exception | None = None) -> None:
         self._error = error
 
-    def execute(self, archivo_dto: ArchivoEntradaDTO) -> ProcesarPdfOutputDTO:
+    def ejecutar(self, archivo_dto: ArchivoEntradaDTO) -> ProcesarPdfOutputDTO:
         if self._error is not None:
             raise self._error
         return ProcesarPdfOutputDTO(

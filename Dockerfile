@@ -27,8 +27,7 @@ LABEL maintainer="MaJuVer" \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH" \
-    ENVIRONMENT=production \
-    MONGO_URL=""
+    ENVIRONMENT=production
 
 RUN groupadd -g 10001 appgroup && \
     useradd -u 10001 -r -s /bin/false -g appgroup appuser

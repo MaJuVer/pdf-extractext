@@ -13,6 +13,7 @@ en el mismo lugar y use el mismo tipo de doble.
 | Orquestador | `tests/application/test_services/test_procesar_pdf_orchestrator.py` | `MagicMock(spec=...)` del repositorio y del extractor |
 | Repositorio Mongo | `tests/infrastructure/` | `mongomock` |
 | Base de datos e índices | `tests/infrastructure/` | `mongomock` + `monkeypatch` de `MongoClient` |
+| Adaptador `pypdf` | `tests/infrastructure/test_pypdf_extractor.py` | ninguno: PDF mínimo generado en memoria |
 | HTTP | `tests/interface/` | `TestClient` + `app.dependency_overrides` |
 | Arquitectura | `tests/test_arquitectura.py` | AST de la stdlib (sin ejecutar la app) |
 

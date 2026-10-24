@@ -28,15 +28,14 @@ def test_actualizar_registro_existente() -> None:
     resultado = service.ejecutar(
         id_registro=str(fake_id),
         nuevo_texto="Texto nuevo y mejorado",
-        nuevo_hash="hash_nuevo_123",
         nuevo_nombre_archivo="renombrado.pdf",
     )
 
     assert resultado is not None
     assert resultado.contenido_extraido == "Texto nuevo y mejorado"
-    assert resultado.hash_contenido == "hash_nuevo_123"
+    assert resultado.hash_contenido == "hash_viejo"
     assert resultado.nombre_archivo_original == "renombrado.pdf"
-    mock_repository.update.assert_called_once_with(resultado)
+    mock_repository.update.assert_called_once_with(registro_existente)
 
 
 def test_actualizar_registro_inexistente_devuelve_none() -> None:

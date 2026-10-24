@@ -1,11 +1,11 @@
-"""Mapeo de entidades de dominio a schemas de respuesta HTTP."""
+"""Mapeo de DTOs de aplicación a schemas de respuesta HTTP."""
 
-from src.domain.entities.registro_procesamiento import RegistroProcesamiento
+from src.application.dtos.registro_dtos import RegistroDetalleDTO
 from src.interface.api.schemas.registro_schema import RegistroProcesamientoResponse
 
 
-def to_response(registro: RegistroProcesamiento) -> RegistroProcesamientoResponse:
-    """Convierte una entidad RegistroProcesamiento a su schema de respuesta."""
+def to_response(registro: RegistroDetalleDTO) -> RegistroProcesamientoResponse:
+    """Convierte un DTO de detalle a su schema de respuesta."""
     return RegistroProcesamientoResponse(
         id=registro.id,
         nombre_archivo_original=registro.nombre_archivo_original,

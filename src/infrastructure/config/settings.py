@@ -34,7 +34,10 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
-        return f"mongodb://{self.MONGO_USER}:{self.MONGO_PASS}@{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DB}?authSource=admin"
+        from urllib.parse import quote_plus
+        user = quote_plus(self.MONGO_USER)
+        pwd = quote_plus(self.MONGO_PASS)
+        return f"mongodb://{user}:{pwd}@{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DB}?authSource=admin"
 
 @lru_cache
 def get_settings() -> Settings:
